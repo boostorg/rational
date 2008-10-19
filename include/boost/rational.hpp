@@ -5,10 +5,6 @@
 //  in all copies. This software is provided "as is" without express or
 //  implied warranty, and with no claim as to its suitability for any purpose.
 
-// boostinspect:nolicense (don't complain about the lack of a Boost license)
-// (Paul Moore hasn't been in contact for years, so there's no way to change the
-// license.)
-
 //  See http://www.boost.org/libs/rational for documentation.
 
 //  Credits:
@@ -55,7 +51,7 @@
 #define BOOST_RATIONAL_HPP
 
 #include <iostream>              // for std::istream and std::ostream
-#include <ios>                   // for std::noskipws
+#include <iomanip>               // for std::noskipws
 #include <stdexcept>             // for std::domain_error
 #include <string>                // for std::string implicit constructor
 #include <boost/operators.hpp>   // for boost::addable etc
