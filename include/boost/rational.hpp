@@ -83,6 +83,8 @@
 #include <limits>                // for std::numeric_limits
 #include <boost/static_assert.hpp>  // for BOOST_STATIC_ASSERT
 #include <boost/throw_exception.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_convertible.hpp>
 
 // Control whether depreciated GCD and LCM functions are included (default: yes)
 #ifndef BOOST_CONTROL_RATIONAL_HAS_GCD
@@ -149,9 +151,26 @@ public:
 
     BOOST_CONSTEXPR
     rational() : num(0), den(1) {}
-    BOOST_CONSTEXPR
-    rational(param_type n) : num(n), den(1) {}
-    rational(param_type n, param_type d) : num(n), den(d) { normalize(); }
+    template <class T>
+    BOOST_CONSTEXPR rational(const T& n, typename enable_if_c<
+       (std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
+       && (std::numeric_limits<T>::digits <= std::numeric_limits<IntType>::digits)
+       && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
+       && (std::numeric_limits<T>::is_signed == std::numeric_limits<IntType>::is_signed)
+       && is_convertible<T, IntType>::value)
+       || is_same<T, IntType>::value
+    >::type const* = 0) : num(n), den(1) {}
+    template <class T>
+    rational(const T& n, const T& d, typename enable_if_c<
+       (std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
+       && (std::numeric_limits<T>::digits <= std::numeric_limits<IntType>::digits)
+       && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
+       && (std::numeric_limits<T>::is_signed == std::numeric_limits<IntType>::is_signed)
+       && is_convertible<T, IntType>::value)
+       || is_same<T, IntType>::value
+    >::type const* = 0) : num(n), den(d) {
+       normalize();
+    }
 
 #ifndef BOOST_NO_MEMBER_TEMPLATES
     template < typename NewType >
@@ -165,10 +184,90 @@ public:
     // Default copy constructor and assignment are fine
 
     // Add assignment from IntType
-    rational& operator=(param_type i) { num = i; den = 1; return *this; }
+    template <class T>
+    typename enable_if_c<
+       (std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
+       && (std::numeric_limits<T>::digits <= std::numeric_limits<IntType>::digits)
+       && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
+       && (std::numeric_limits<T>::is_signed == std::numeric_limits<IntType>::is_signed)
+       && is_convertible<T, IntType>::value)
+       || is_same<T, IntType>::value,
+       rational &
+    >::type operator=(const T& n) { return assign(n, static_cast<T>(1)); }
 
     // Assign in place
-    rational& assign(param_type n, param_type d);
+    template <class T>
+    typename enable_if_c<
+       (std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
+       && (std::numeric_limits<T>::digits <= std::numeric_limits<IntType>::digits)
+       && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
+       && (std::numeric_limits<T>::is_signed == std::numeric_limits<IntType>::is_signed)
+       && is_convertible<T, IntType>::value)
+       || is_same<T, IntType>::value,
+       rational &
+    >::type assign(const T& n, const T& d)
+    {
+       return *this = rational<IntType>(n, d);
+    }
+    //
+    // The following overloads should probably *not* be provided - 
+    // but are provided for backwards compatibity reasons only.
+    // These allow for construction/assignment from types that
+    // are wider than IntType only if there is an implicit
+    // conversion from T to IntType, they will throw a bad_rational
+    // if the conversion results in loss of precision or undefined behaviour.
+    //
+    template <class T>
+    rational(const T& n, typename enable_if_c<
+       std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
+       && ((std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits)
+       || (std::numeric_limits<T>::is_signed != std::numeric_limits<IntType>::is_signed))
+       && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
+       && is_convertible<T, IntType>::value
+    >::type const* = 0)
+    {
+       assign(n, static_cast<T>(1));
+    }
+    template <class T>
+    rational(const T& n, const T& d, typename enable_if_c<
+       std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
+       && ((std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits)
+       || (std::numeric_limits<T>::is_signed != std::numeric_limits<IntType>::is_signed))
+       && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
+       && is_convertible<T, IntType>::value
+    >::type const* = 0)
+    {
+       assign(n, d);
+    }
+    template <class T>
+    typename enable_if_c<
+       std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
+       && ((std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits)
+       || (std::numeric_limits<T>::is_signed != std::numeric_limits<IntType>::is_signed))
+       && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
+       && is_convertible<T, IntType>::value,
+       rational &
+    >::type operator=(const T& n) { return assign(n, static_cast<T>(1)); }
+
+    template <class T>
+    typename enable_if_c<
+       std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
+       && ((std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits)
+       || (std::numeric_limits<T>::is_signed != std::numeric_limits<IntType>::is_signed))
+       && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
+       && is_convertible<T, IntType>::value,
+       rational &
+    >::type assign(const T& n, const T& d)
+    {
+       if(
+          ((std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (n > static_cast<T>((std::numeric_limits<IntType>::max)())))
+          || (std::numeric_limits<T>::is_signed && (n < static_cast<T>((std::numeric_limits<IntType>::min)())))
+          || ((std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (d > static_cast<T>((std::numeric_limits<IntType>::max)())))
+          || (std::numeric_limits<T>::is_signed && (d < static_cast<T>((std::numeric_limits<IntType>::min)())))
+          )
+          BOOST_THROW_EXCEPTION(bad_rational());
+       return *this = rational<IntType>(static_cast<IntType>(n), static_cast<IntType>(d));
+    }
 
     // Access to representation
     BOOST_CONSTEXPR
@@ -253,13 +352,6 @@ private:
     }
 };
 
-// Assign in place
-template <typename IntType>
-inline rational<IntType>& rational<IntType>::assign(param_type n, param_type d)
-{
-    return *this = rational( n, d );
-}
-
 // Unary plus and minus
 template <typename IntType>
 BOOST_CONSTEXPR
@@ -271,7 +363,7 @@ inline rational<IntType> operator+ (const rational<IntType>& r)
 template <typename IntType>
 inline rational<IntType> operator- (const rational<IntType>& r)
 {
-    return rational<IntType>(-r.numerator(), r.denominator());
+    return rational<IntType>(static_cast<IntType>(-r.numerator()), r.denominator());
 }
 
 // Arithmetic assignment operators
