@@ -155,13 +155,11 @@ public:
 
 #ifndef BOOST_NO_MEMBER_TEMPLATES
     template < typename NewType >
-    explicit
-    rational( rational<NewType> const &r )
-        : num( r.numerator() ), den( r.denominator() )          
-    {
-       if(!is_normalized(num, den))
-          BOOST_THROW_EXCEPTION(bad_rational("bad rational: denormalized conversion"));
-    }
+    BOOST_CONSTEXPR explicit
+       rational(rational<NewType> const &r)
+       : num(r.numerator()), den(is_normalized(int_type(r.numerator()),
+       int_type(r.denominator())) ? r.denominator() :
+       (BOOST_THROW_EXCEPTION(bad_rational("bad rational: denormalized conversion")), 0)){}
 #endif
 
     // Default copy constructor and assignment are fine
