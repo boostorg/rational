@@ -43,6 +43,7 @@
 #include <boost/operators.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/math/common_factor_rt.hpp>
+#include <boost/cstdint.hpp>
 
 #include <boost/rational.hpp>
 
@@ -990,12 +991,12 @@ BOOST_AUTO_TEST_CASE( rational_cast_test )
     //
     // Check assignments that should succeed from both wider and narrower types:
     //
-    boost::rational<int> rat;
-#ifndef BOOST_NO_LONG_LONG
-    long long ll, ll1(1);
-    unsigned long long ull, ull1(1);
-    int imax = (std::numeric_limits<int>::max)();
-    int imin = (std::numeric_limits<int>::min)();
+    boost::rational<boost::int32_t> rat;
+#ifndef BOOST_NO_INT64_T
+    boost::int64_t ll, ll1(1);
+    boost::uint64_t ull, ull1(1);
+    boost::int32_t imax = (std::numeric_limits<boost::int32_t>::max)();
+    boost::int32_t imin = (std::numeric_limits<boost::int32_t>::min)();
     ll = imax;
     rat.assign(ll, ll1);
     BOOST_CHECK_EQUAL(rat.numerator(), imax);
@@ -1019,18 +1020,18 @@ BOOST_AUTO_TEST_CASE( rational_cast_test )
     BOOST_CHECK_EQUAL(rat.numerator(), 0);
     BOOST_CHECK_EQUAL(rat.denominator(), 1);
 #endif
-    short smax = (std::numeric_limits<short>::max)();
-    short smin = (std::numeric_limits<short>::min)();
-    short s1 = 1;
+    boost::int16_t smax = (std::numeric_limits<boost::int16_t>::max)();
+    boost::int16_t smin = (std::numeric_limits<boost::int16_t>::min)();
+    boost::int16_t s1 = 1;
     rat.assign(smax, s1);
     BOOST_CHECK_EQUAL(rat.numerator(), smax);
     BOOST_CHECK_EQUAL(rat.denominator(), 1);
     rat.assign(smin, s1);
     BOOST_CHECK_EQUAL(rat.numerator(), smin);
     BOOST_CHECK_EQUAL(rat.denominator(), 1);
-    unsigned short usmax = (std::numeric_limits<unsigned short>::max)();
-    unsigned short usmin = (std::numeric_limits<unsigned short>::min)();
-    unsigned short us1 = 1;
+    boost::uint16_t usmax = (std::numeric_limits<boost::uint16_t>::max)();
+    boost::uint16_t usmin = (std::numeric_limits<boost::uint16_t>::min)();
+    boost::uint16_t us1 = 1;
     rat.assign(usmax, us1);
     BOOST_CHECK_EQUAL(rat.numerator(), usmax);
     BOOST_CHECK_EQUAL(rat.denominator(), 1);
@@ -1040,10 +1041,10 @@ BOOST_AUTO_TEST_CASE( rational_cast_test )
     //
     // Over again with unsigned rational:
     //
-    boost::rational<unsigned> urat;
-    unsigned uimax = (std::numeric_limits<unsigned>::max)();
-    unsigned uimin = (std::numeric_limits<unsigned>::min)();
-#ifndef BOOST_NO_LONG_LONG
+    boost::rational<boost::uint32_t> urat;
+    unsigned uimax = (std::numeric_limits<boost::uint32_t>::max)();
+    unsigned uimin = (std::numeric_limits<boost::uint32_t>::min)();
+#ifndef BOOST_NO_INT64_T
     ll = uimax;
     urat.assign(ll, ll1);
     BOOST_CHECK_EQUAL(urat.numerator(), uimax);
