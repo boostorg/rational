@@ -671,6 +671,38 @@ inline rational<IntType> abs(const rational<IntType>& r)
     return r.numerator() >= IntType(0)? r: -r;
 }
 
+namespace math {
+
+template <typename IntType>
+struct gcd_evaluator< rational<IntType> >
+{
+    typedef rational<IntType> result_type,
+                              first_argument_type, second_argument_type;
+    result_type operator() (  first_argument_type const &a
+                           , second_argument_type const &b
+                           ) const
+    {
+        return result_type(gcd(a.numerator(), b.numerator()),
+                           lcm(a.denominator(), b.denominator()));
+    }
+};
+
+template <typename IntType>
+struct lcm_evaluator< rational<IntType> >
+{
+    typedef rational<IntType> result_type,
+                              first_argument_type, second_argument_type;
+    result_type operator() (  first_argument_type const &a
+                           , second_argument_type const &b
+                           ) const
+    {
+        return result_type(lcm(a.numerator(), b.numerator()),
+                           gcd(a.denominator(), b.denominator()));
+    }
+};
+
+} // namespace math
+
 } // namespace boost
 
 #endif  // BOOST_RATIONAL_HPP
