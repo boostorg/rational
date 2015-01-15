@@ -79,7 +79,7 @@
 #include <boost/call_traits.hpp> // for boost::call_traits
 #include <boost/detail/workaround.hpp> // for BOOST_WORKAROUND
 #include <boost/assert.hpp>      // for BOOST_ASSERT
-#include <boost/math/common_factor_rt.hpp>  // for boost::math::gcd, lcm
+#include <boost/integer/common_factor_rt.hpp> // for boost::integer::gcd, lcm
 #include <limits>                // for std::numeric_limits
 #include <boost/static_assert.hpp>  // for BOOST_STATIC_ASSERT
 
@@ -95,14 +95,14 @@ template <typename IntType>
 IntType gcd(IntType n, IntType m)
 {
     // Defer to the version in Boost.Math
-    return math::gcd( n, m );
+    return integer::gcd( n, m );
 }
 
 template <typename IntType>
 IntType lcm(IntType n, IntType m)
 {
     // Defer to the version in Boost.Math
-    return math::lcm( n, m );
+    return integer::lcm( n, m );
 }
 #endif  // BOOST_CONTROL_RATIONAL_HAS_GCD
 
@@ -300,10 +300,10 @@ rational<IntType>& rational<IntType>::operator+= (const rational<IntType>& r)
     IntType r_num = r.num;
     IntType r_den = r.den;
 
-    IntType g = math::gcd(den, r_den);
+    IntType g = integer::gcd(den, r_den);
     den /= g;  // = b1 from the calculations above
     num = num * (r_den / g) + r_num * den;
-    g = math::gcd(num, g);
+    g = integer::gcd(num, g);
     num /= g;
     den *= r_den/g;
 
@@ -319,10 +319,10 @@ rational<IntType>& rational<IntType>::operator-= (const rational<IntType>& r)
 
     // This calculation avoids overflow, and minimises the number of expensive
     // calculations. It corresponds exactly to the += case above
-    IntType g = math::gcd(den, r_den);
+    IntType g = integer::gcd(den, r_den);
     den /= g;
     num = num * (r_den / g) - r_num * den;
-    g = math::gcd(num, g);
+    g = integer::gcd(num, g);
     num /= g;
     den *= r_den/g;
 
@@ -337,8 +337,8 @@ rational<IntType>& rational<IntType>::operator*= (const rational<IntType>& r)
     IntType r_den = r.den;
 
     // Avoid overflow and preserve normalization
-    IntType gcd1 = math::gcd(num, r_den);
-    IntType gcd2 = math::gcd(r_num, den);
+    IntType gcd1 = integer::gcd(num, r_den);
+    IntType gcd2 = integer::gcd(r_num, den);
     num = (num/gcd1) * (r_num/gcd2);
     den = (den/gcd2) * (r_den/gcd1);
     return *this;
@@ -361,8 +361,8 @@ rational<IntType>& rational<IntType>::operator/= (const rational<IntType>& r)
         return *this;
 
     // Avoid overflow and preserve normalization
-    IntType gcd1 = math::gcd(num, r_num);
-    IntType gcd2 = math::gcd(r_den, den);
+    IntType gcd1 = integer::gcd(num, r_num);
+    IntType gcd2 = integer::gcd(r_den, den);
     num = (num/gcd1) * (r_den/gcd2);
     den = (den/gcd2) * (r_num/gcd1);
 
@@ -379,7 +379,7 @@ inline rational<IntType>&
 rational<IntType>::operator*= (param_type i)
 {
     // Avoid overflow and preserve normalization
-    IntType gcd = math::gcd(i, den);
+    IntType gcd = integer::gcd(i, den);
     num *= i / gcd;
     den /= gcd;
 
@@ -397,7 +397,7 @@ rational<IntType>::operator/= (param_type i)
     if (num == zero) return *this;
 
     // Avoid overflow and preserve normalization
-    IntType const gcd = math::gcd(num, i);
+    IntType const gcd = integer::gcd(num, i);
     num /= gcd;
     den *= i / gcd;
 
@@ -536,7 +536,7 @@ inline bool rational<IntType>::operator== (param_type i) const
 template <typename IntType>
 inline bool rational<IntType>::test_invariant() const
 {
-    return ( this->den > int_type(0) ) && ( math::gcd(this->num, this->den) ==
+    return ( this->den > int_type(0) ) && ( integer::gcd(this->num, this->den) ==
      int_type(1) );
 }
 
@@ -556,7 +556,7 @@ void rational<IntType>::normalize()
         return;
     }
 
-    IntType g = math::gcd(num, den);
+    IntType g = integer::gcd(num, den);
 
     num /= g;
     den /= g;
