@@ -42,7 +42,7 @@
 #include <boost/mpl/list.hpp>
 #include <boost/operators.hpp>
 #include <boost/preprocessor/stringize.hpp>
-#include <boost/math/common_factor_rt.hpp>
+#include <boost/integer/common_factor_rt.hpp>
 
 #include <boost/rational.hpp>
 
@@ -1033,8 +1033,8 @@ BOOST_AUTO_TEST_CASE( bug_798357_test )
     unsigned const  n2 = d1, d2 = UINT_MAX;
     boost::rational<MyOverflowingUnsigned> const  r1( n1, d1 ), r2( n2, d2 );
 
-    BOOST_REQUIRE_EQUAL( boost::math::gcd(n1, d1), 1u );
-    BOOST_REQUIRE_EQUAL( boost::math::gcd(n2, d2), 1u );
+    BOOST_REQUIRE_EQUAL( boost::integer::gcd(n1, d1), 1u );
+    BOOST_REQUIRE_EQUAL( boost::integer::gcd(n2, d2), 1u );
     BOOST_REQUIRE( n1 > UINT_MAX / d2 );
     BOOST_REQUIRE( n2 > UINT_MAX / d1 );
     BOOST_CHECK( r1 < r2 );
@@ -1063,7 +1063,7 @@ BOOST_AUTO_TEST_CASE( patch_1438626_test )
     // If a GCD routine takes the absolute value of an argument only before
     // processing, it won't realize that -INT_MIN -> INT_MIN (i.e. no change
     // from negation) and will propagate a negative sign to its result.
-    BOOST_REQUIRE_EQUAL( boost::math::gcd(INT_MIN, 6), 2 );
+    BOOST_REQUIRE_EQUAL( boost::integer::gcd(INT_MIN, 6), 2 );
 
     // That is bad if the rational number type does not check for that
     // possibility during normalization.
@@ -1114,7 +1114,7 @@ BOOST_AUTO_TEST_CASE( ticket_5855_test )
 BOOST_AUTO_TEST_CASE( ticket_9067_test )
 {
     using boost::rational;
-    using boost::math::gcd;
+    using boost::integer::gcd;
 
     rational<int>  a( 6, -8 );
 
