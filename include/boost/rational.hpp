@@ -671,7 +671,7 @@ inline rational<IntType> abs(const rational<IntType>& r)
     return r.numerator() >= IntType(0)? r: -r;
 }
 
-namespace math {
+namespace integer {
 
 template <typename IntType>
 struct gcd_evaluator< rational<IntType> >
@@ -701,7 +701,7 @@ struct lcm_evaluator< rational<IntType> >
     }
 };
 
-} // namespace math
+} // namespace integer
 
 } // namespace boost
 
