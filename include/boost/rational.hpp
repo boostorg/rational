@@ -441,7 +441,7 @@ bool rational<IntType>::operator< (const rational<IntType>& r) const
     while ( rs.r < zero )  { rs.r += rs.d; --rs.q; }
 
     // Loop through and compare each variable's continued-fraction components
-    while ( true )
+    for ( ;; )
     {
         // The quotients of the current cycle are the continued-fraction
         // components.  Comparing two c.f. is comparing their sequences,
