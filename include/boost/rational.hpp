@@ -238,12 +238,7 @@ public:
        rational &
     >::type assign(const T& n, const T& d)
     {
-       if(
-          ((std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (n > static_cast<T>((std::numeric_limits<IntType>::max)())))
-          || (std::numeric_limits<T>::is_signed && (n < static_cast<T>((std::numeric_limits<IntType>::min)())))
-          || ((std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (d > static_cast<T>((std::numeric_limits<IntType>::max)())))
-          || (std::numeric_limits<T>::is_signed && (d < static_cast<T>((std::numeric_limits<IntType>::min)())))
-          )
+       if(!is_safe_narrowing_conversion(n) || !is_safe_narrowing_conversion(d))
           BOOST_THROW_EXCEPTION(bad_rational());
        return *this = rational<IntType>(static_cast<IntType>(n), static_cast<IntType>(d));
     }
@@ -403,6 +398,33 @@ private:
     {
         return d > zero && ( n != zero || d == one ) && inner_abs( inner_gcd(n,
          d, zero), zero ) == one;
+    }
+
+    template <class T>
+    typename boost::enable_if_c<(std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == false), bool>::type is_safe_narrowing_conversion(const T& val)
+    {
+       static const T safe_max_t = T(1) << std::numeric_limits<IntType>::digits;
+       return val < safe_max_t;
+    }
+    template <class T>
+    typename boost::enable_if_c<(std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == true), bool>::type is_safe_narrowing_conversion(const T& val)
+    {
+       // Note that this check assumes IntType has a 2's complement representation,
+       // we don't want to try to convert a std::numeric_limits<IntType>::min() to
+       // a T because that conversion may not be allowed (this happens when IntType
+       // is from Boost.Multiprecision).
+       static const T safe_max_t = T(1) << std::numeric_limits<IntType>::digits;
+       return (val < safe_max_t) && (val >= -safe_max_t);
+    }
+    template <class T>
+    typename boost::enable_if_c<(std::numeric_limits<T>::is_signed == true) && (std::numeric_limits<IntType>::is_signed == false), bool>::type is_safe_narrowing_conversion(const T& val)
+    {
+       return val >= 0;
+    }
+    template <class T>
+    typename boost::enable_if_c<(std::numeric_limits<T>::is_signed == false) && (std::numeric_limits<IntType>::is_signed == true), bool>::type is_safe_narrowing_conversion(const T&)
+    {
+       return true;
     }
 };
 
