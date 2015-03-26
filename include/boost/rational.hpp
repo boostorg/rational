@@ -407,7 +407,7 @@ private:
        return val < safe_max_t;
     }
     template <class T>
-    typename boost::enable_if_c<(std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == true), bool>::type is_safe_narrowing_conversion(const T& val)
+    typename boost::enable_if_c<(std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == true) && (std::numeric_limits<IntType>::is_signed == true), bool>::type is_safe_narrowing_conversion(const T& val)
     {
        // Note that this check assumes IntType has a 2's complement representation,
        // we don't want to try to convert a std::numeric_limits<IntType>::min() to
@@ -417,12 +417,18 @@ private:
        return (val < safe_max_t) && (val >= -safe_max_t);
     }
     template <class T>
-    typename boost::enable_if_c<(std::numeric_limits<T>::is_signed == true) && (std::numeric_limits<IntType>::is_signed == false), bool>::type is_safe_narrowing_conversion(const T& val)
+    typename boost::enable_if_c<(std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == true) && (std::numeric_limits<IntType>::is_signed == false), bool>::type is_safe_narrowing_conversion(const T& val)
+    {
+       static const T safe_max_t = T(1) << std::numeric_limits<IntType>::digits;
+       return (val < safe_max_t) && (val >= 0);
+    }
+    template <class T>
+    typename boost::enable_if_c<(std::numeric_limits<T>::digits <= std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == true) && (std::numeric_limits<IntType>::is_signed == false), bool>::type is_safe_narrowing_conversion(const T& val)
     {
        return val >= 0;
     }
     template <class T>
-    typename boost::enable_if_c<(std::numeric_limits<T>::is_signed == false) && (std::numeric_limits<IntType>::is_signed == true), bool>::type is_safe_narrowing_conversion(const T&)
+    typename boost::enable_if_c<(std::numeric_limits<T>::digits <= std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == false) && (std::numeric_limits<IntType>::is_signed == true), bool>::type is_safe_narrowing_conversion(const T&)
     {
        return true;
     }
