@@ -119,7 +119,7 @@ namespace rational_detail{
       BOOST_STATIC_CONSTANT(bool, value = ((std::numeric_limits<FromInt>::is_specialized && std::numeric_limits<FromInt>::is_integer
          && (std::numeric_limits<FromInt>::digits <= std::numeric_limits<ToInt>::digits)
          && (std::numeric_limits<FromInt>::radix == std::numeric_limits<ToInt>::radix)
-         && (std::numeric_limits<FromInt>::is_signed == std::numeric_limits<ToInt>::is_signed)
+         && ((std::numeric_limits<FromInt>::is_signed == false) || (std::numeric_limits<ToInt>::is_signed == true))
          && is_convertible<FromInt, ToInt>::value)
          || is_same<FromInt, ToInt>::value)
          || (is_class<ToInt>::value && is_class<FromInt>::value && is_convertible<FromInt, ToInt>::value));
@@ -199,8 +199,7 @@ public:
     template <class T>
     rational(const T& n, typename enable_if_c<
        std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
-       && ((std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits)
-       || (std::numeric_limits<T>::is_signed != std::numeric_limits<IntType>::is_signed))
+       && !rational_detail::is_compatible_integer<T, IntType>::value
        && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
        && is_convertible<T, IntType>::value
     >::type const* = 0)
@@ -210,8 +209,7 @@ public:
     template <class T>
     rational(const T& n, const T& d, typename enable_if_c<
        std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
-       && ((std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits)
-       || (std::numeric_limits<T>::is_signed != std::numeric_limits<IntType>::is_signed))
+       && !rational_detail::is_compatible_integer<T, IntType>::value
        && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
        && is_convertible<T, IntType>::value
     >::type const* = 0)
@@ -221,8 +219,7 @@ public:
     template <class T>
     typename enable_if_c<
        std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
-       && ((std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits)
-       || (std::numeric_limits<T>::is_signed != std::numeric_limits<IntType>::is_signed))
+       && !rational_detail::is_compatible_integer<T, IntType>::value
        && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
        && is_convertible<T, IntType>::value,
        rational &
@@ -231,8 +228,7 @@ public:
     template <class T>
     typename enable_if_c<
        std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
-       && ((std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits)
-       || (std::numeric_limits<T>::is_signed != std::numeric_limits<IntType>::is_signed))
+       && !rational_detail::is_compatible_integer<T, IntType>::value
        && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
        && is_convertible<T, IntType>::value,
        rational &
