@@ -163,15 +163,19 @@ public:
        normalize();
     }
 
-#ifndef BOOST_NO_MEMBER_TEMPLATES
     template < typename NewType >
     BOOST_CONSTEXPR explicit
-       rational(rational<NewType> const &r)
+       rational(rational<NewType> const &r, typename enable_if_c<rational_detail::is_compatible_integer<NewType, IntType>::value>::type const* = 0)
        : num(r.numerator()), den(is_normalized(int_type(r.numerator()),
        int_type(r.denominator())) ? r.denominator() :
        (BOOST_THROW_EXCEPTION(bad_rational("bad rational: denormalized conversion")), 0)){}
-#endif
 
+    template < typename NewType >
+    BOOST_CONSTEXPR explicit
+       rational(rational<NewType> const &r, typename disable_if_c<rational_detail::is_compatible_integer<NewType, IntType>::value>::type const* = 0)
+       : num(r.numerator()), den(is_normalized(int_type(r.numerator()),
+       int_type(r.denominator())) && is_safe_narrowing_conversion(r.denominator()) && is_safe_narrowing_conversion(r.numerator()) ? r.denominator() :
+       (BOOST_THROW_EXCEPTION(bad_rational("bad rational: denormalized conversion")), 0)){}
     // Default copy constructor and assignment are fine
 
     // Add assignment from IntType
@@ -397,34 +401,31 @@ private:
     }
 
     template <class T>
-    typename boost::enable_if_c<(std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == false), bool>::type is_safe_narrowing_conversion(const T& val)
+    BOOST_CONSTEXPR static typename boost::enable_if_c<(std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == false), bool>::type is_safe_narrowing_conversion(const T& val)
     {
-       static const T safe_max_t = T(1) << std::numeric_limits<IntType>::digits;
-       return val < safe_max_t;
+       return val < (T(1) << std::numeric_limits<IntType>::digits);
     }
     template <class T>
-    typename boost::enable_if_c<(std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == true) && (std::numeric_limits<IntType>::is_signed == true), bool>::type is_safe_narrowing_conversion(const T& val)
+    BOOST_CONSTEXPR static typename boost::enable_if_c<(std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == true) && (std::numeric_limits<IntType>::is_signed == true), bool>::type is_safe_narrowing_conversion(const T& val)
     {
        // Note that this check assumes IntType has a 2's complement representation,
        // we don't want to try to convert a std::numeric_limits<IntType>::min() to
        // a T because that conversion may not be allowed (this happens when IntType
        // is from Boost.Multiprecision).
-       static const T safe_max_t = T(1) << std::numeric_limits<IntType>::digits;
-       return (val < safe_max_t) && (val >= -safe_max_t);
+       return (val < (T(1) << std::numeric_limits<IntType>::digits)) && (val >= -(T(1) << std::numeric_limits<IntType>::digits));
     }
     template <class T>
-    typename boost::enable_if_c<(std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == true) && (std::numeric_limits<IntType>::is_signed == false), bool>::type is_safe_narrowing_conversion(const T& val)
+    BOOST_CONSTEXPR static typename boost::enable_if_c<(std::numeric_limits<T>::digits > std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == true) && (std::numeric_limits<IntType>::is_signed == false), bool>::type is_safe_narrowing_conversion(const T& val)
     {
-       static const T safe_max_t = T(1) << std::numeric_limits<IntType>::digits;
-       return (val < safe_max_t) && (val >= 0);
+       return (val < (T(1) << std::numeric_limits<IntType>::digits)) && (val >= 0);
     }
     template <class T>
-    typename boost::enable_if_c<(std::numeric_limits<T>::digits <= std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == true) && (std::numeric_limits<IntType>::is_signed == false), bool>::type is_safe_narrowing_conversion(const T& val)
+    BOOST_CONSTEXPR static typename boost::enable_if_c<(std::numeric_limits<T>::digits <= std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == true) && (std::numeric_limits<IntType>::is_signed == false), bool>::type is_safe_narrowing_conversion(const T& val)
     {
        return val >= 0;
     }
     template <class T>
-    typename boost::enable_if_c<(std::numeric_limits<T>::digits <= std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == false) && (std::numeric_limits<IntType>::is_signed == true), bool>::type is_safe_narrowing_conversion(const T&)
+    BOOST_CONSTEXPR static typename boost::enable_if_c<(std::numeric_limits<T>::digits <= std::numeric_limits<IntType>::digits) && (std::numeric_limits<T>::is_signed == false) && (std::numeric_limits<IntType>::is_signed == true), bool>::type is_safe_narrowing_conversion(const T&)
     {
        return true;
     }
