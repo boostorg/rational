@@ -958,21 +958,6 @@ BOOST_AUTO_TEST_CASE( rational_cast_test )
 
     BOOST_CHECK_EQUAL( boost::rational_cast<MyOverflowingUnsigned>(threehalves),
      MyOverflowingUnsigned(1u) );
-
-#ifndef BOOST_NO_CONSTEXPR
-    constexpr boost::rational<int> i1;
-    constexpr boost::rational<int> i2(3);
-    constexpr boost::rational<short> i3(i2);
-
-    static_assert(i1.numerator() == 0, "constexpr test");
-    static_assert(i1.denominator() == 1, "constexpr test");
-    static_assert(i2.numerator() == 3, "constexpr test");
-    static_assert(i2.denominator() == 1, "constexpr test");
-    static_assert(i3.numerator() == 3, "constexpr test");
-    static_assert(i3.denominator() == 1, "constexpr test");
-    static_assert(!i1, "constexpr test");
-    static_assert(i2, "constexpr test");
-#endif
 }
 
 #ifndef BOOST_NO_MEMBER_TEMPLATES
