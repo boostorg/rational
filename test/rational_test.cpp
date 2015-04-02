@@ -958,6 +958,10 @@ BOOST_AUTO_TEST_CASE( rational_cast_test )
 
     BOOST_CHECK_EQUAL( boost::rational_cast<MyOverflowingUnsigned>(threehalves),
      MyOverflowingUnsigned(1u) );
+    //
+    // Converting constructor should throw if a bad rational number results:
+    //
+    BOOST_CHECK_THROW(boost::rational<short>(boost::rational<long>(1, 1 << sizeof(short) * CHAR_BIT)), boost::bad_rational);
 }
 
 #ifndef BOOST_NO_MEMBER_TEMPLATES

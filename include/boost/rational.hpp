@@ -82,6 +82,7 @@
 #include <boost/integer/common_factor_rt.hpp> // for boost::integer::gcd, lcm
 #include <limits>                // for std::numeric_limits
 #include <boost/static_assert.hpp>  // for BOOST_STATIC_ASSERT
+#include <boost/throw_exception.hpp>
 
 // Control whether depreciated GCD and LCM functions are included (default: yes)
 #ifndef BOOST_CONTROL_RATIONAL_HAS_GCD
@@ -155,11 +156,10 @@ public:
 #ifndef BOOST_NO_MEMBER_TEMPLATES
     template < typename NewType >
     BOOST_CONSTEXPR explicit
-    rational( rational<NewType> const &r )
-        : num( r.numerator() ), den( is_normalized(int_type( r.numerator() ),
-          int_type( r.denominator() )) ? r.denominator() :
-          throw bad_rational("bad rational: denormalized conversion") )
-    {}
+       rational(rational<NewType> const &r)
+       : num(r.numerator()), den(is_normalized(int_type(r.numerator()),
+       int_type(r.denominator())) ? r.denominator() :
+       (BOOST_THROW_EXCEPTION(bad_rational("bad rational: denormalized conversion")), 0)){}
 #endif
 
     // Default copy constructor and assignment are fine
@@ -356,7 +356,7 @@ rational<IntType>& rational<IntType>::operator/= (const rational<IntType>& r)
 
     // Trap division by zero
     if (r_num == zero)
-        throw bad_rational();
+        BOOST_THROW_EXCEPTION(bad_rational());
     if (num == zero)
         return *this;
 
@@ -393,7 +393,7 @@ rational<IntType>::operator/= (param_type i)
     // Avoid repeated construction
     IntType const zero(0);
 
-    if (i == zero) throw bad_rational();
+    if(i == zero) BOOST_THROW_EXCEPTION(bad_rational());
     if (num == zero) return *this;
 
     // Avoid overflow and preserve normalization
@@ -548,7 +548,7 @@ void rational<IntType>::normalize()
     IntType zero(0);
 
     if (den == zero)
-        throw bad_rational();
+       BOOST_THROW_EXCEPTION(bad_rational());
 
     // Handle the case of zero separately, to avoid division by zero
     if (num == zero) {
@@ -572,7 +572,7 @@ void rational<IntType>::normalize()
     // member function is only called during the constructor, so we never have
     // to worry about zombie objects.)
     if (den < zero)
-        throw bad_rational( "bad rational: non-zero singular denominator" );
+       BOOST_THROW_EXCEPTION(bad_rational("bad rational: non-zero singular denominator"));
 
     BOOST_ASSERT( this->test_invariant() );
 }
