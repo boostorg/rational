@@ -172,9 +172,9 @@ public:
 
     // Access to representation
     BOOST_CONSTEXPR
-    IntType numerator() const { return num; }
+    const IntType& numerator() const { return num; }
     BOOST_CONSTEXPR
-    IntType denominator() const { return den; }
+    const IntType& denominator() const { return den; }
 
     // Arithmetic assignment operators
     rational& operator+= (const rational& r);
