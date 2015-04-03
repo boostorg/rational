@@ -682,8 +682,8 @@ struct gcd_evaluator< rational<IntType> >
                            , second_argument_type const &b
                            ) const
     {
-        return result_type(gcd(a.numerator(), b.numerator()),
-                           lcm(a.denominator(), b.denominator()));
+        return result_type(integer::gcd(a.numerator(), b.numerator()),
+                           integer::lcm(a.denominator(), b.denominator()));
     }
 };
 
@@ -696,8 +696,8 @@ struct lcm_evaluator< rational<IntType> >
                            , second_argument_type const &b
                            ) const
     {
-        return result_type(lcm(a.numerator(), b.numerator()),
-                           gcd(a.denominator(), b.denominator()));
+        return result_type(integer::lcm(a.numerator(), b.numerator()),
+                           integer::gcd(a.denominator(), b.denominator()));
     }
 };
 
