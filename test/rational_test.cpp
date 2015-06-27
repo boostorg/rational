@@ -442,7 +442,7 @@ typedef ::boost::mpl::list<short, int, long, MyInt>  all_signed_test_types;
 
 
 // Check if rational is the smallest size possible
-BOOST_GLOBAL_FIXTURE( rational_size_check )
+BOOST_GLOBAL_FIXTURE( rational_size_check );
 
 
 #if BOOST_CONTROL_RATIONAL_HAS_GCD
