@@ -224,12 +224,7 @@ public:
     BOOST_CONSTEXPR
     bool operator== (param_type i) const;
 
-    rational<IntType> reciprocal() const
-    {
-        if (num == IntType(0)) BOOST_THROW_EXCEPTION(bad_rational());
-
-        return rational<IntType>(already_normalized(), den, num);
-    }
+    rational<IntType> reciprocal() const;
 
 private:
     // Implementation - numerator and denominator (normalized).
@@ -542,6 +537,20 @@ inline bool rational<IntType>::operator== (param_type i) const
     return ((den == IntType(1)) && (num == i));
 }
 
+template <typename IntType>
+rational<IntType> rational<IntType>::reciprocal() const
+{
+    IntType const zero(0);
+
+    if (num == zero)
+        BOOST_THROW_EXCEPTION(bad_rational());
+
+    if (num < zero)
+        return rational<IntType>(already_normalized(), -den, -num);
+
+    return rational<IntType>(already_normalized(), den, num);
+}
+
 // Invariant check
 template <typename IntType>
 inline bool rational<IntType>::test_invariant() const
@@ -688,11 +697,12 @@ inline rational<IntType> pow(rational<IntType> const& base, IntType exponent)
     bool const positive = exponent >= 0;
     rational<IntType> result(exponent % 2 != 0? base: rational<IntType>(1));
     rational<IntType> x(base);
-    if (!positive) exponent = -exponent;
-    while ((exponent /= 2) > 0) {
+
+    while ((exponent /= 2) != 0) {
         x *= x;
-        if ((exponent % 2) == 1) result *= x;
+        if (exponent % 2 != 0) result *= x;
     }
+
     return positive? result: result.reciprocal();
 }
 
