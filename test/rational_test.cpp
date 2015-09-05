@@ -642,6 +642,27 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( rational_abs_test, T, all_signed_test_types )
     BOOST_CHECK_EQUAL( abs(r8), rational_type(2, 3) );
 }
 
+// Power tests
+BOOST_AUTO_TEST_CASE_TEMPLATE( rational_pow_test, T, all_signed_test_types )
+{
+    typedef boost::rational<T> rational_type;
+
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T(-3)), rational_type(1, 8) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T(-2)), rational_type(1, 4) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T(-1)), rational_type(1, 2) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 0)), rational_type(1) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 1)), rational_type(2) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 2)), rational_type(4) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 3)), rational_type(8) );
+
+    BOOST_CHECK_EQUAL( pow(rational_type(1, 3), T(3)), rational_type(1, 27) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2, 3), T(3)), rational_type(8, 27) );
+    BOOST_CHECK_EQUAL( pow(rational_type(1, 5), T(5)), rational_type(1, 3125) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2, 5), T(5)), rational_type(32, 3125) );
+    BOOST_CHECK_EQUAL( pow(rational_type(3, 5), T(5)), rational_type(243, 3125) );
+    BOOST_CHECK_EQUAL( pow(rational_type(4, 5), T(5)), rational_type(1024, 3125) );
+}
+
 // Unary operator tests
 BOOST_AUTO_TEST_CASE_TEMPLATE( rational_unary_test, T, all_signed_test_types )
 {

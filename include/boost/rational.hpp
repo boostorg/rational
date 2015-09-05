@@ -143,6 +143,9 @@ class rational :
     struct helper { IntType parts[2]; };
     typedef IntType (helper::* bool_type)[2];
 
+    class already_normalized {};
+    rational(already_normalized, param_type n, param_type d) : num(n), den(d) {}
+
 public:
     // Component type
     typedef IntType int_type;
@@ -220,6 +223,13 @@ public:
     bool operator> (param_type i) const;
     BOOST_CONSTEXPR
     bool operator== (param_type i) const;
+
+    rational<IntType> reciprocal() const
+    {
+        if (num == IntType(0)) BOOST_THROW_EXCEPTION(bad_rational());
+
+        return rational<IntType>(already_normalized(), den, num);
+    }
 
 private:
     // Implementation - numerator and denominator (normalized).
@@ -669,6 +679,21 @@ template <typename IntType>
 inline rational<IntType> abs(const rational<IntType>& r)
 {
     return r.numerator() >= IntType(0)? r: -r;
+}
+
+template <typename IntType>
+inline rational<IntType> pow(rational<IntType> const& base, IntType exponent)
+{
+    if (!base) return base;
+    bool const positive = exponent >= 0;
+    rational<IntType> result(exponent % 2 != 0? base: rational<IntType>(1));
+    rational<IntType> x(base);
+    if (!positive) exponent = -exponent;
+    while ((exponent /= 2) > 0) {
+        x *= x;
+        if ((exponent % 2) == 1) result *= x;
+    }
+    return positive? result: result.reciprocal();
 }
 
 namespace integer {
