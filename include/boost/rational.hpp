@@ -642,7 +642,7 @@ std::ostream& operator<< (std::ostream& os, const rational<IntType>& r)
     ss << noshowpos << noshowbase << '/' << r.denominator();
 
     // The numerator holds the showpos, internal, and showbase flags.
-    string const   tail = ss.str();
+    std::string const   tail = ss.str();
     streamsize const  w = os.width() - static_cast<streamsize>( tail.size() );
 
     ss.clear();
