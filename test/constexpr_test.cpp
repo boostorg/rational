@@ -8,7 +8,7 @@
 
 int main()
 {
-#ifndef BOOST_NO_CONSTEXPR
+#ifndef BOOST_NO_CXX11_CONSTEXPR
    constexpr boost::rational<int> i1;
    constexpr boost::rational<int> i2(3);
    constexpr boost::rational<short> i3(i2);
