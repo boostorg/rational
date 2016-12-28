@@ -885,26 +885,25 @@ std::istream& operator>> (std::istream& is, rational<IntType>& r)
 template <typename IntType>
 std::ostream& operator<< (std::ostream& os, const rational<IntType>& r)
 {
-    using namespace std;
-
     // The slash directly precedes the denominator, which has no prefixes.
-    ostringstream  ss;
+    std::ostringstream  ss;
 
     ss.copyfmt( os );
     ss.tie( NULL );
-    ss.exceptions( ios::goodbit );
+    ss.exceptions( std::ios::goodbit );
     ss.width( 0 );
-    ss << noshowpos << noshowbase << '/' << r.denominator();
+    ss << std::noshowpos << std::noshowbase << '/' << r.denominator();
 
     // The numerator holds the showpos, internal, and showbase flags.
-    string const   tail = ss.str();
-    streamsize const  w = os.width() - static_cast<streamsize>( tail.size() );
+    std::string const   tail = ss.str();
+    std::streamsize const  w =
+        os.width() - static_cast<std::streamsize>( tail.size() );
 
     ss.clear();
     ss.str( "" );
     ss.flags( os.flags() );
-    ss << setw( w < 0 || (os.flags() & ios::adjustfield) != ios::internal ? 0 :
-     w ) << r.numerator();
+    ss << std::setw( w < 0 || (os.flags() & std::ios::adjustfield) !=
+                     std::ios::internal ? 0 : w ) << r.numerator();
     return os << ss.str() + tail;
 }
 #endif  // BOOST_NO_IOSTREAM
@@ -926,7 +925,38 @@ inline rational<IntType> abs(const rational<IntType>& r)
     return r.numerator() >= IntType(0)? r: -r;
 }
 
+namespace integer {
+
+template <typename IntType>
+struct gcd_evaluator< rational<IntType> >
+{
+    typedef rational<IntType> result_type,
+                              first_argument_type, second_argument_type;
+    result_type operator() (  first_argument_type const &a
+                           , second_argument_type const &b
+                           ) const
+    {
+        return result_type(integer::gcd(a.numerator(), b.numerator()),
+                           integer::lcm(a.denominator(), b.denominator()));
+    }
+};
+
+template <typename IntType>
+struct lcm_evaluator< rational<IntType> >
+{
+    typedef rational<IntType> result_type,
+                              first_argument_type, second_argument_type;
+    result_type operator() (  first_argument_type const &a
+                           , second_argument_type const &b
+                           ) const
+    {
+        return result_type(integer::lcm(a.numerator(), b.numerator()),
+                           integer::gcd(a.denominator(), b.denominator()));
+    }
+};
+
+} // namespace integer
+
 } // namespace boost
 
 #endif  // BOOST_RATIONAL_HPP
-

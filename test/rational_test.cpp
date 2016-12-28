@@ -443,7 +443,7 @@ typedef ::boost::mpl::list<short, int, long, MyInt>  all_signed_test_types;
 
 
 // Check if rational is the smallest size possible
-BOOST_GLOBAL_FIXTURE( rational_size_check )
+BOOST_GLOBAL_FIXTURE( rational_size_check );
 
 
 #if BOOST_CONTROL_RATIONAL_HAS_GCD
@@ -803,6 +803,15 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( rational_self_operations_test, T,
     BOOST_CHECK_EQUAL( r, rational_type( 0, 1) );
 
     BOOST_CHECK_THROW( r /= r, boost::bad_rational );
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( gcd_and_lcm_on_rationals, T, all_signed_test_types )
+{
+    typedef boost::rational<T> rational;
+    BOOST_CHECK_EQUAL(boost::integer::gcd(rational(1, 4), rational(1, 3)),
+                      rational(1, 12));
+    BOOST_CHECK_EQUAL(boost::integer::lcm(rational(1, 4), rational(1, 3)),
+                      rational(1));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
