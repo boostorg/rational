@@ -43,6 +43,7 @@
 #include <boost/operators.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/integer/common_factor_rt.hpp>
+#include <boost/cstdint.hpp>
 
 #include <boost/rational.hpp>
 
@@ -971,6 +972,126 @@ BOOST_AUTO_TEST_CASE( rational_cast_test )
     // Converting constructor should throw if a bad rational number results:
     //
     BOOST_CHECK_THROW(boost::rational<short>(boost::rational<long>(1, 1 << sizeof(short) * CHAR_BIT)), boost::bad_rational);
+    //
+    // New tests from checked narrowing conversions:
+    //
+    BOOST_CHECK_THROW(boost::rational<unsigned>(-1), boost::bad_rational);
+    BOOST_CHECK_THROW(boost::rational<unsigned>(-1, 1), boost::bad_rational);
+    BOOST_CHECK_THROW(boost::rational<unsigned>(1, -1), boost::bad_rational);
+    unsigned ui_max = (std::numeric_limits<unsigned>::max)();
+    BOOST_CHECK_THROW(boost::rational<int>(static_cast<unsigned>(ui_max)), boost::bad_rational);
+    BOOST_CHECK_THROW(boost::rational<int>(ui_max, 1u), boost::bad_rational);
+    BOOST_CHECK_THROW(boost::rational<int>(1u, ui_max), boost::bad_rational);
+    //
+    // Check assignments that should succeed from both wider and narrower types:
+    //
+    boost::rational<boost::int32_t> rat;
+#ifndef BOOST_NO_INT64_T
+    boost::int64_t ll, ll1(1);
+    boost::uint64_t ull, ull1(1);
+    boost::int32_t imax = (std::numeric_limits<boost::int32_t>::max)();
+    boost::int32_t imin = (std::numeric_limits<boost::int32_t>::min)();
+    ll = imax;
+    rat.assign(ll, ll1);
+    BOOST_CHECK_EQUAL(rat.numerator(), imax);
+    BOOST_CHECK_EQUAL(rat.denominator(), 1);
+    ++ll;
+    BOOST_CHECK_THROW(rat.assign(ll, ll1), boost::bad_rational);
+    ll = imin;
+    rat.assign(ll, ll1);
+    BOOST_CHECK_EQUAL(rat.numerator(), imin);
+    BOOST_CHECK_EQUAL(rat.denominator(), 1);
+    --ll;
+    BOOST_CHECK_THROW(rat.assign(ll, ll1), boost::bad_rational);
+    ull = imax;
+    rat.assign(ull, ull1);
+    BOOST_CHECK_EQUAL(rat.numerator(), imax);
+    BOOST_CHECK_EQUAL(rat.denominator(), 1);
+    ++ull;
+    BOOST_CHECK_THROW(rat.assign(ull, ull1), boost::bad_rational);
+    ull = 0;
+    rat.assign(ull, ull1);
+    BOOST_CHECK_EQUAL(rat.numerator(), 0);
+    BOOST_CHECK_EQUAL(rat.denominator(), 1);
+#endif
+    boost::int16_t smax = (std::numeric_limits<boost::int16_t>::max)();
+    boost::int16_t smin = (std::numeric_limits<boost::int16_t>::min)();
+    boost::int16_t s1 = 1;
+    rat.assign(smax, s1);
+    BOOST_CHECK_EQUAL(rat.numerator(), smax);
+    BOOST_CHECK_EQUAL(rat.denominator(), 1);
+    rat.assign(smin, s1);
+    BOOST_CHECK_EQUAL(rat.numerator(), smin);
+    BOOST_CHECK_EQUAL(rat.denominator(), 1);
+    boost::uint16_t usmax = (std::numeric_limits<boost::uint16_t>::max)();
+    boost::uint16_t usmin = (std::numeric_limits<boost::uint16_t>::min)();
+    boost::uint16_t us1 = 1;
+    rat.assign(usmax, us1);
+    BOOST_CHECK_EQUAL(rat.numerator(), usmax);
+    BOOST_CHECK_EQUAL(rat.denominator(), 1);
+    rat.assign(usmin, us1);
+    BOOST_CHECK_EQUAL(rat.numerator(), usmin);
+    BOOST_CHECK_EQUAL(rat.denominator(), 1);
+    //
+    // Over again with unsigned rational:
+    //
+    boost::rational<boost::uint32_t> urat;
+    unsigned uimax = (std::numeric_limits<boost::uint32_t>::max)();
+    unsigned uimin = (std::numeric_limits<boost::uint32_t>::min)();
+#ifndef BOOST_NO_INT64_T
+    ll = uimax;
+    urat.assign(ll, ll1);
+    BOOST_CHECK_EQUAL(urat.numerator(), uimax);
+    BOOST_CHECK_EQUAL(urat.denominator(), 1);
+    ++ll;
+    BOOST_CHECK_THROW(urat.assign(ll, ll1), boost::bad_rational);
+    ll = uimin;
+    urat.assign(ll, ll1);
+    BOOST_CHECK_EQUAL(urat.numerator(), uimin);
+    BOOST_CHECK_EQUAL(urat.denominator(), 1);
+    --ll;
+    BOOST_CHECK_THROW(urat.assign(ll, ll1), boost::bad_rational);
+    ull = uimax;
+    urat.assign(ull, ull1);
+    BOOST_CHECK_EQUAL(urat.numerator(), uimax);
+    BOOST_CHECK_EQUAL(urat.denominator(), 1);
+    ++ull;
+    BOOST_CHECK_THROW(urat.assign(ull, ull1), boost::bad_rational);
+    ull = 0;
+    urat.assign(ull, ull1);
+    BOOST_CHECK_EQUAL(urat.numerator(), 0);
+    BOOST_CHECK_EQUAL(urat.denominator(), 1);
+#endif
+    smin = 0;
+    s1 = 1;
+    urat.assign(smax, s1);
+    BOOST_CHECK_EQUAL(urat.numerator(), smax);
+    BOOST_CHECK_EQUAL(urat.denominator(), 1);
+    urat.assign(smin, s1);
+    BOOST_CHECK_EQUAL(urat.numerator(), smin);
+    BOOST_CHECK_EQUAL(urat.denominator(), 1);
+    urat.assign(usmax, us1);
+    BOOST_CHECK_EQUAL(urat.numerator(), usmax);
+    BOOST_CHECK_EQUAL(urat.denominator(), 1);
+    urat.assign(usmin, us1);
+    BOOST_CHECK_EQUAL(urat.numerator(), usmin);
+    BOOST_CHECK_EQUAL(urat.denominator(), 1);
+    //
+    // Conversions that must not be allowed:
+    //
+    BOOST_STATIC_ASSERT(!boost::is_convertible<float, boost::rational<int> >::value);
+    BOOST_STATIC_ASSERT(!boost::is_convertible<double, boost::rational<int> >::value);
+    BOOST_STATIC_ASSERT(!boost::is_convertible<long double, boost::rational<int> >::value);
+    // And ones that should:
+    BOOST_STATIC_ASSERT(boost::is_convertible<char, boost::rational<int> >::value);
+    BOOST_STATIC_ASSERT(boost::is_convertible<signed char, boost::rational<int> >::value);
+    BOOST_STATIC_ASSERT(boost::is_convertible<unsigned char, boost::rational<int> >::value);
+    BOOST_STATIC_ASSERT(boost::is_convertible<short, boost::rational<int> >::value);
+    BOOST_STATIC_ASSERT(boost::is_convertible<unsigned short, boost::rational<int> >::value);
+    BOOST_STATIC_ASSERT(boost::is_convertible<int, boost::rational<int> >::value);
+    BOOST_STATIC_ASSERT(boost::is_convertible<unsigned int, boost::rational<int> >::value);
+    BOOST_STATIC_ASSERT(boost::is_convertible<long, boost::rational<int> >::value);
+    BOOST_STATIC_ASSERT(boost::is_convertible<unsigned long, boost::rational<int> >::value);
 }
 
 #ifndef BOOST_NO_MEMBER_TEMPLATES
