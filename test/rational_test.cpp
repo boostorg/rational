@@ -551,9 +551,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( rational_comparison_test, T,
  all_signed_test_types )
 {
     my_configuration::hook<T>  h;
-    boost::rational<T>  &r1 = h.r_[ 0 ], &r2 = h.r_[ 1 ], &r3 = h.r_[ 2 ],
-                        &r4 = h.r_[ 3 ], &r5 = h.r_[ 4 ], &r6 = h.r_[ 5 ],
-                        &r7 = h.r_[ 6 ], &r8 = h.r_[ 7 ], &r9 = h.r_[ 8 ];
+    const boost::rational<T>  &r1 = h.r_[ 0 ], &r2 = h.r_[ 1 ], &r3 = h.r_[ 2 ],
+                              &r4 = h.r_[ 3 ], &r5 = h.r_[ 4 ], &r6 = h.r_[ 5 ],
+                              &r7 = h.r_[ 6 ], &r8 = h.r_[ 7 ], &r9 = h.r_[ 8 ];
 
     BOOST_CHECK( r1 == r2 );
     BOOST_CHECK( r2 != r3 );
