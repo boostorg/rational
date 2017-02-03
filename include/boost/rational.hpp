@@ -342,7 +342,7 @@ public:
     bool operator== (const rational& r) const;
 
     template <class T>
-    typename boost::enable_if_c<rational_detail::is_compatible_integer<T, IntType>::value, bool>::type operator< (const T& i)
+    typename boost::enable_if_c<rational_detail::is_compatible_integer<T, IntType>::value, bool>::type operator< (const T& i) const
     {
        // Avoid repeated construction
        int_type const  zero(0);
@@ -359,12 +359,12 @@ public:
        return q < i;
     }
     template <class T>
-    typename boost::enable_if_c<rational_detail::is_compatible_integer<T, IntType>::value, bool>::type operator>(const T& i)
+    typename boost::enable_if_c<rational_detail::is_compatible_integer<T, IntType>::value, bool>::type operator>(const T& i) const
     {
        return operator==(i) ? false : !operator<(i);
     }
     template <class T>
-    BOOST_CONSTEXPR typename boost::enable_if_c<rational_detail::is_compatible_integer<T, IntType>::value, bool>::type operator== (const T& i)
+    BOOST_CONSTEXPR typename boost::enable_if_c<rational_detail::is_compatible_integer<T, IntType>::value, bool>::type operator== (const T& i) const
     {
        return ((den == IntType(1)) && (num == i));
     }
