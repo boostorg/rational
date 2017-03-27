@@ -59,6 +59,11 @@
 #include <stdexcept>
 #include <string>
 
+#ifdef _MSC_VER
+#pragma warning(disable:4146)
+#endif
+
+
 // We can override this on the compile, as -DINT_TYPE=short or whatever.
 // The default test is against rational<long>.
 #ifndef INT_TYPE
@@ -812,6 +817,203 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( gcd_and_lcm_on_rationals, T, all_signed_test_type
                       rational(1, 12));
     BOOST_CHECK_EQUAL(boost::integer::lcm(rational(1, 4), rational(1, 3)),
                       rational(1));
+}
+
+// Assignment tests
+BOOST_AUTO_TEST_CASE_TEMPLATE(rational_mixed_test, T,
+   /*all_signed_test_types*/ builtin_signed_test_types)
+{
+   {
+      typedef boost::rational<boost::intmax_t>  rational_type;
+      T val1 = 20;
+      boost::intmax_t val2 = 30;
+
+      rational_type  r(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(20, 30));
+
+      r.assign(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(20, 30));
+   }
+   {
+      typedef boost::rational<boost::uintmax_t>  rational_type2;
+
+      T val1 = 20;
+      boost::uintmax_t val3 = 30;
+
+      rational_type2  r2(val1, val3);
+      BOOST_CHECK_EQUAL(r2, rational_type2(20, 30));
+
+      r2.assign(val1, val3);
+      BOOST_CHECK_EQUAL(r2, rational_type2(20, 30));
+   }
+   {
+      typedef boost::rational<short>  rational_type;
+      T val1 = 20;
+      short val2 = 30;
+
+      rational_type  r(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(20, 30));
+
+      r.assign(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(20, 30));
+   }
+   {
+      typedef boost::rational<unsigned short>  rational_type;
+      T val1 = 20;
+      unsigned short val2 = 30;
+
+      rational_type  r(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(20, 30));
+
+      r.assign(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(20, 30));
+   }
+}
+
+BOOST_AUTO_TEST_CASE(conversions)
+{
+   typedef boost::rational<boost::int32_t> signed_rat;
+
+   boost::int32_t signed_max = (std::numeric_limits<boost::int32_t>::max)();
+   boost::int32_t signed_min = (std::numeric_limits<boost::int32_t>::min)();
+   boost::int32_t signed_min_num = signed_min + 1;
+
+   BOOST_CHECK_EQUAL(signed_rat(signed_max).numerator(), signed_max);
+   BOOST_CHECK_EQUAL(signed_rat(signed_min).numerator(), signed_min);
+   BOOST_CHECK_EQUAL(signed_rat(signed_max, 1).numerator(), signed_max);
+   BOOST_CHECK_EQUAL(signed_rat(signed_min, 1).numerator(), signed_min);
+   BOOST_CHECK_EQUAL(signed_rat(1, signed_max).denominator(), signed_max);
+   BOOST_CHECK_EQUAL(signed_rat(1, signed_min_num).denominator(), -signed_min_num);
+   // This throws because we can't negate signed_min:
+   BOOST_CHECK_THROW(signed_rat(1, signed_min).denominator(), std::domain_error);
+
+   signed_rat sr;
+   BOOST_CHECK_EQUAL(sr.assign(signed_max, 1).numerator(), signed_max);
+   BOOST_CHECK_EQUAL(sr.assign(1, signed_max).denominator(), signed_max);
+   BOOST_CHECK_EQUAL(sr.assign(signed_min, 1).numerator(), signed_min);
+   BOOST_CHECK_EQUAL(sr.assign(1, signed_min_num).denominator(), -signed_min_num);
+   BOOST_CHECK_THROW(sr.assign(1, signed_min), std::domain_error);
+
+   BOOST_CHECK_EQUAL((sr = signed_max).numerator(), signed_max);
+   BOOST_CHECK_EQUAL((sr = signed_min).numerator(), signed_min);
+
+   boost::int64_t big_signed_max = (std::numeric_limits<boost::int32_t>::max)();
+   boost::int64_t big_signed_min = (std::numeric_limits<boost::int32_t>::min)();
+   boost::int64_t big_signed_min_num = signed_min + 1;
+
+   BOOST_CHECK_EQUAL(signed_rat(big_signed_max).numerator(), big_signed_max);
+   BOOST_CHECK_EQUAL(signed_rat(big_signed_min).numerator(), big_signed_min);
+   BOOST_CHECK_EQUAL(signed_rat(big_signed_max, 1).numerator(), big_signed_max);
+   BOOST_CHECK_EQUAL(signed_rat(big_signed_min, 1).numerator(), big_signed_min);
+   BOOST_CHECK_EQUAL(signed_rat(1, big_signed_max).denominator(), big_signed_max);
+   BOOST_CHECK_EQUAL(signed_rat(1, big_signed_min_num).denominator(), -big_signed_min_num);
+   // This throws because we can't negate big_signed_min:
+   BOOST_CHECK_THROW(signed_rat(1, big_signed_min).denominator(), std::domain_error);
+
+   BOOST_CHECK_EQUAL(sr.assign(big_signed_max, 1).numerator(), big_signed_max);
+   BOOST_CHECK_EQUAL(sr.assign(1, big_signed_max).denominator(), big_signed_max);
+   BOOST_CHECK_EQUAL(sr.assign(big_signed_min, 1).numerator(), big_signed_min);
+   BOOST_CHECK_EQUAL(sr.assign(1, big_signed_min_num).denominator(), -big_signed_min_num);
+   BOOST_CHECK_THROW(sr.assign(1, big_signed_min), std::domain_error);
+
+   BOOST_CHECK_EQUAL((sr = big_signed_max).numerator(), big_signed_max);
+   BOOST_CHECK_EQUAL((sr = big_signed_min).numerator(), big_signed_min);
+
+   ++big_signed_max;
+   --big_signed_min;
+   BOOST_CHECK_THROW(signed_rat(big_signed_max).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(signed_rat(big_signed_min).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(signed_rat(big_signed_max, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(signed_rat(big_signed_min, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(signed_rat(1, big_signed_max).denominator(), std::domain_error);
+
+   BOOST_CHECK_THROW(sr.assign(big_signed_max, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(sr.assign(1, big_signed_max).denominator(), std::domain_error);
+   BOOST_CHECK_THROW(sr.assign(big_signed_min, 1).numerator(), std::domain_error);
+
+   BOOST_CHECK_THROW((sr = big_signed_max).numerator(), std::domain_error);
+   BOOST_CHECK_THROW((sr = big_signed_min).numerator(), std::domain_error);
+
+   boost::uint32_t unsigned_max = signed_max;
+   BOOST_CHECK_EQUAL(signed_rat(unsigned_max).numerator(), signed_max);
+   BOOST_CHECK_EQUAL(signed_rat(unsigned_max, 1).numerator(), signed_max);
+   BOOST_CHECK_EQUAL(signed_rat(1, unsigned_max).denominator(), signed_max);
+
+   BOOST_CHECK_EQUAL(sr.assign(unsigned_max, 1).numerator(), signed_max);
+   BOOST_CHECK_EQUAL(sr.assign(1, unsigned_max).denominator(), signed_max);
+   BOOST_CHECK_EQUAL((sr = unsigned_max).numerator(), signed_max);
+   ++unsigned_max;
+   BOOST_CHECK_THROW(signed_rat(unsigned_max).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(signed_rat(unsigned_max, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(signed_rat(1, unsigned_max).denominator(), std::domain_error);
+
+   BOOST_CHECK_THROW(sr.assign(unsigned_max, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(sr.assign(1, unsigned_max).denominator(), std::domain_error);
+   BOOST_CHECK_THROW((sr = unsigned_max).numerator(), std::domain_error);
+
+   // Over again with unsigned rational type:
+   typedef boost::rational<boost::uint32_t> unsigned_rat;
+
+   unsigned_max = (std::numeric_limits<boost::uint32_t>::max)();
+
+   BOOST_CHECK_EQUAL(unsigned_rat(unsigned_max).numerator(), unsigned_max);
+   BOOST_CHECK_EQUAL(unsigned_rat(unsigned_max, 1).numerator(), unsigned_max);
+   BOOST_CHECK_EQUAL(unsigned_rat(1, unsigned_max).denominator(), unsigned_max);
+
+   unsigned_rat ur;
+   BOOST_CHECK_EQUAL((ur = unsigned_max).numerator(), unsigned_max);
+   BOOST_CHECK_EQUAL(ur.assign(unsigned_max, 1).numerator(), unsigned_max);
+   BOOST_CHECK_EQUAL(ur.assign(1, unsigned_max).denominator(), unsigned_max);
+
+   boost::uint64_t big_unsigned_max = unsigned_max;
+   BOOST_CHECK_EQUAL(unsigned_rat(big_unsigned_max).numerator(), big_unsigned_max);
+   BOOST_CHECK_EQUAL(unsigned_rat(big_unsigned_max, 1).numerator(), big_unsigned_max);
+   BOOST_CHECK_EQUAL(unsigned_rat(1, big_unsigned_max).denominator(), big_unsigned_max);
+   BOOST_CHECK_EQUAL((ur = big_unsigned_max).numerator(), big_unsigned_max);
+   BOOST_CHECK_EQUAL(ur.assign(big_unsigned_max, 1).numerator(), big_unsigned_max);
+   BOOST_CHECK_EQUAL(ur.assign(1, big_unsigned_max).denominator(), big_unsigned_max);
+   ++big_unsigned_max;
+   BOOST_CHECK_THROW(unsigned_rat(big_unsigned_max).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(unsigned_rat(big_unsigned_max, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(unsigned_rat(1, big_unsigned_max).denominator(), std::domain_error);
+   BOOST_CHECK_THROW((ur = big_unsigned_max).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(ur.assign(big_unsigned_max, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(ur.assign(1, big_unsigned_max).denominator(), std::domain_error);
+
+   BOOST_CHECK_EQUAL(unsigned_rat(signed_max).numerator(), signed_max);
+   BOOST_CHECK_EQUAL(unsigned_rat(signed_max, 1).numerator(), signed_max);
+   BOOST_CHECK_EQUAL(unsigned_rat(1, signed_max).denominator(), signed_max);
+   BOOST_CHECK_EQUAL((ur = signed_max).numerator(), signed_max);
+   BOOST_CHECK_EQUAL(ur.assign(signed_max, 1).numerator(), signed_max);
+   BOOST_CHECK_EQUAL(ur.assign(1, signed_max).denominator(), signed_max);
+   BOOST_CHECK_THROW(unsigned_rat(signed_min).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(unsigned_rat(signed_min, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(unsigned_rat(1, signed_min).denominator(), std::domain_error);
+   BOOST_CHECK_THROW((ur = signed_min).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(ur.assign(signed_min, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(ur.assign(1, signed_min).denominator(), std::domain_error);
+
+   big_signed_max = unsigned_max;
+   BOOST_CHECK_EQUAL(unsigned_rat(big_signed_max).numerator(), unsigned_max);
+   BOOST_CHECK_EQUAL(unsigned_rat(big_signed_max, 1).numerator(), unsigned_max);
+   BOOST_CHECK_EQUAL(unsigned_rat(1, big_signed_max).denominator(), unsigned_max);
+   BOOST_CHECK_EQUAL((ur = big_signed_max).numerator(), unsigned_max);
+   BOOST_CHECK_EQUAL(ur.assign(big_signed_max, 1).numerator(), unsigned_max);
+   BOOST_CHECK_EQUAL(ur.assign(1, big_signed_max).denominator(), unsigned_max);
+   ++big_signed_max;
+   BOOST_CHECK_THROW(unsigned_rat(big_signed_max).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(unsigned_rat(big_signed_max, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(unsigned_rat(1, big_signed_max).denominator(), std::domain_error);
+   BOOST_CHECK_THROW((ur = big_signed_max).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(ur.assign(big_signed_max, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(ur.assign(1, big_signed_max).denominator(), std::domain_error);
+   big_signed_max = -1;
+   BOOST_CHECK_THROW(unsigned_rat(big_signed_max).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(unsigned_rat(big_signed_max, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(unsigned_rat(1, big_signed_max).denominator(), std::domain_error);
+   BOOST_CHECK_THROW((ur = big_signed_max).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(ur.assign(big_signed_max, 1).numerator(), std::domain_error);
+   BOOST_CHECK_THROW(ur.assign(1, big_signed_max).denominator(), std::domain_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
