@@ -868,6 +868,61 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(rational_mixed_test, T,
       r.assign(val1, val2);
       BOOST_CHECK_EQUAL(r, rational_type(20, 30));
    }
+   {
+      typedef boost::rational<long>  rational_type;
+      T val1 = 20;
+      long val2 = 30;
+
+      rational_type  r(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(20, 30));
+
+      r.assign(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(20, 30));
+   }
+   {
+      typedef boost::rational<unsigned long>  rational_type;
+      T val1 = 20;
+      unsigned long val2 = 30;
+
+      rational_type  r(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(20, 30));
+
+      r.assign(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(20, 30));
+   }
+   {
+      typedef boost::rational<boost::intmax_t>  rational_type;
+      T val1 = 20;
+      boost::intmax_t val2 = -30;
+
+      rational_type  r(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(20, -30));
+
+      r.assign(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(20, -30));
+   }
+   {
+      typedef boost::rational<short>  rational_type;
+      T val1 = -20;
+      short val2 = -30;
+
+      rational_type  r(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(-20, -30));
+
+      r.assign(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(-20, -30));
+   }
+   {
+      typedef boost::rational<long>  rational_type;
+      T val1 = -20;
+      long val2 = 30;
+
+      rational_type  r(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(-20, 30));
+
+      r.assign(val1, val2);
+      BOOST_CHECK_EQUAL(r, rational_type(-20, 30));
+   }
 }
 
 BOOST_AUTO_TEST_CASE(conversions)
