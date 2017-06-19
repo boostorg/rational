@@ -192,64 +192,6 @@ public:
     {
        return *this = rational<IntType>(static_cast<IntType>(n), static_cast<IntType>(d));
     }
-    //
-    // The following overloads should probably *not* be provided - 
-    // but are provided for backwards compatibity reasons only.
-    // These allow for construction/assignment from types that
-    // are wider than IntType only if there is an implicit
-    // conversion from T to IntType, they will throw a bad_rational
-    // if the conversion results in loss of precision or undefined behaviour.
-    //
-    template <class T>
-    rational(const T& n, typename enable_if_c<
-       std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
-       && !rational_detail::is_compatible_integer<T, IntType>::value
-       && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
-       && is_convertible<T, IntType>::value
-    >::type const* = 0)
-    {
-       assign(n, static_cast<T>(1));
-    }
-    template <class T, class U>
-    rational(const T& n, const U& d, typename enable_if_c<
-       (!rational_detail::is_compatible_integer<T, IntType>::value
-       || !rational_detail::is_compatible_integer<U, IntType>::value)
-       && std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
-       && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
-       && is_convertible<T, IntType>::value &&
-       std::numeric_limits<U>::is_specialized && std::numeric_limits<U>::is_integer
-       && (std::numeric_limits<U>::radix == std::numeric_limits<IntType>::radix)
-       && is_convertible<U, IntType>::value
-    >::type const* = 0)
-    {
-       assign(n, d);
-    }
-    template <class T>
-    typename enable_if_c<
-       std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
-       && !rational_detail::is_compatible_integer<T, IntType>::value
-       && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
-       && is_convertible<T, IntType>::value,
-       rational &
-    >::type operator=(const T& n) { return assign(n, static_cast<T>(1)); }
-
-    template <class T, class U>
-    typename enable_if_c<
-       (!rational_detail::is_compatible_integer<T, IntType>::value
-          || !rational_detail::is_compatible_integer<U, IntType>::value)
-       && std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
-       && (std::numeric_limits<T>::radix == std::numeric_limits<IntType>::radix)
-       && is_convertible<T, IntType>::value &&
-       std::numeric_limits<U>::is_specialized && std::numeric_limits<U>::is_integer
-       && (std::numeric_limits<U>::radix == std::numeric_limits<IntType>::radix)
-       && is_convertible<U, IntType>::value,
-       rational &
-    >::type assign(const T& n, const U& d)
-    {
-       if(!is_safe_narrowing_conversion(n) || !is_safe_narrowing_conversion(d))
-          BOOST_THROW_EXCEPTION(bad_rational());
-       return *this = rational<IntType>(static_cast<IntType>(n), static_cast<IntType>(d));
-    }
 
     // Access to representation
     BOOST_CONSTEXPR
