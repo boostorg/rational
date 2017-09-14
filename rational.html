@@ -694,38 +694,64 @@ required elsewhere, the calculation is performed inline.
 
 <h2><a name="History and Acknowledgements">History and Acknowledgements</a></h2>
 
-In December, 1999, I implemented the initial version of the rational number
-class, and submitted it to the <A HREF="http://www.boost.org/">boost.org</A>
-mailing list. Some discussion of the implementation took place on the mailing
-list. In particular, Andrew D. Jewell pointed out the importance of ensuring
-that the risk of overflow was minimised, and provided overflow-free
-implementations of most of the basic operations. The name rational_cast was
-suggested by Kevlin Henney. Ed Brey provided invaluable comments - not least
-in pointing out some fairly stupid typing errors in the original code!
+   <p>
+      In December, 1999, I implemented the initial version of the rational number
+      class, and submitted it to the <A HREF="http://www.boost.org/">boost.org</A>
+      mailing list. Some discussion of the implementation took place on the mailing
+      list. In particular, Andrew D. Jewell pointed out the importance of ensuring
+      that the risk of overflow was minimised, and provided overflow-free
+      implementations of most of the basic operations. The name rational_cast was
+      suggested by Kevlin Henney. Ed Brey provided invaluable comments - not least
+      in pointing out some fairly stupid typing errors in the original code!</p>
 
-<p>David Abrahams contributed helpful feedback on the documentation.
+   <p>David Abrahams contributed helpful feedback on the documentation.</p>
 
-<p>A long discussion of the merits of providing a conversion from floating
-point to rational took place on the boost list in November 2000. Key
-contributors included Reggie Seagraves, Lutz Kettner and Daniel Frey (although
-most of the boost list seemed to get involved at one point or another!). Even
-though the end result was a decision <em>not</em> to implement anything, the
-discussion was very valuable in understanding the issues.
+   <p>
+      A long discussion of the merits of providing a conversion from floating
+      point to rational took place on the boost list in November 2000. Key
+      contributors included Reggie Seagraves, Lutz Kettner and Daniel Frey (although
+      most of the boost list seemed to get involved at one point or another!). Even
+      though the end result was a decision <em>not</em> to implement anything, the
+      discussion was very valuable in understanding the issues.
+   </p>
 
-<p>Stephen Silver contributed useful experience on using the rational class
-with a user-defined integer type.
+   <p>
+      Stephen Silver contributed useful experience on using the rational class
+      with a user-defined integer type.
+   </p>
 
-<p>Nickolay Mladenov provided the current implementation of operator+= and
-operator-=.
+   <p>
+      Nickolay Mladenov provided the current implementation of operator+= and
+      operator-=.
+   </p>
+   <p>
+      Discussion of the issues surrounding Koenig lookup and std::swap took place
+      on the boost list in January 2001.
+   </p>
+   <p>
+      Daryle Walker provided a Boolean conversion operator, so that a rational can
+      be used in the same Boolean contexts as the built-in numeric types, in December
+      2005.  He added the cross-instantiation constructor template in August 2013.
+   </p>
+   <p>
+   July 2014: Updated numerator/denominator accessors to return values by constant 
+   reference: this gives a performance improvement when using with multiprecision (class) types.
+   </p>
+   <p>
+      July 2014: Updated to use BOOST_THROW_EXCEPTION uniformly throughout.
+   </p>
+   <p>
+      July 2014: Added support for C++11 constexpr constructors, plus tests to match.
+   </p>
+   <p>
+      Nov 2014: Added support for gcd and lcm of rational numbers.
+   </p>
+   <p>
+      Dec 2016: Reworked constructors and operators to prohibit narrowing implicit 
+      conversions, in particular accidental conversion from floating point types.
+   </p>
 
-<p>Discussion of the issues surrounding Koenig lookup and std::swap took place
-on the boost list in January 2001.
-
-<p>Daryle Walker provided a Boolean conversion operator, so that a rational can
-be used in the same Boolean contexts as the built-in numeric types, in December
-2005.  He added the cross-instantiation constructor template in August 2013.
-
-<p>Revised August 30, 2013</p>
+<p>Revised July 14, 2017</p>
 
 <p>&copy; Copyright Paul Moore 1999-2001; &copy; Daryle Walker 2005, 2013.
 Permission to copy, use, modify, sell and distribute this document is granted
