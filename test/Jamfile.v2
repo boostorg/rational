@@ -5,7 +5,6 @@
 import testing ;
 import ../../config/checks/config : requires ;
 
-
 test-suite rational
     :   [ run rational_example.cpp ]
         [ run rational_test.cpp
