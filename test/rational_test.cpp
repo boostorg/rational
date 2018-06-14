@@ -19,6 +19,7 @@
 // since he hasn't been in contact for years.)
 
 // Revision History
+// 14 Jun 18  Added pow tests
 // 30 Aug 13  Add bug-test of assignments holding the basic and/or strong
 //            guarantees (Daryle Walker)
 // 27 Aug 13  Add test for cross-version constructor template (Daryle Walker)
@@ -1603,6 +1604,41 @@ BOOST_AUTO_TEST_CASE( ticket_9067_test )
     BOOST_CHECK_EQUAL( a.numerator(), -3 );
     BOOST_CHECK_EQUAL( a.denominator(), 4 );
 #endif
+}
+
+// Power tests
+BOOST_AUTO_TEST_CASE_TEMPLATE( rational_pow_test, T, all_signed_test_types )
+{
+    typedef boost::rational<T> rational_type;
+
+    BOOST_CHECK_EQUAL( pow(rational_type(0), T( 0)), rational_type(0) );
+
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T(-4)), rational_type(1, 16) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T(-3)), rational_type(1, 8) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T(-2)), rational_type(1, 4) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T(-1)), rational_type(1, 2) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 0)), rational_type(1) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 1)), rational_type(2) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 2)), rational_type(4) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 3)), rational_type(8) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 4)), rational_type(16) );
+
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T(-4)), rational_type(16) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T(-3)), rational_type(-8) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T(-2)), rational_type(4) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T(-1)), rational_type(-2) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T( 0)), rational_type(1) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T( 1)), rational_type(-1, 2) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T( 2)), rational_type(1, 4) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T( 3)), rational_type(-1, 8) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T( 4)), rational_type(1, 16) );
+
+    BOOST_CHECK_EQUAL( pow(rational_type(1, 3), T(3)), rational_type(1, 27) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2, 3), T(3)), rational_type(8, 27) );
+    BOOST_CHECK_EQUAL( pow(rational_type(1, 5), T(5)), rational_type(1, 3125) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2, 5), T(5)), rational_type(32, 3125) );
+    BOOST_CHECK_EQUAL( pow(rational_type(3, 5), T(5)), rational_type(243, 3125) );
+    BOOST_CHECK_EQUAL( pow(rational_type(4, 5), T(5)), rational_type(1024, 3125) );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

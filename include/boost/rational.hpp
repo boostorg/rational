@@ -21,6 +21,7 @@
 //    Nickolay Mladenov, for the implementation of operator+=
 
 //  Revision History
+//  14 Jun 18  Add pow
 //  02 Sep 13  Remove unneeded forward declarations; tweak private helper
 //             function (Daryle Walker)
 //  30 Aug 13  Improve exception safety of "assign"; start modernizing I/O code
@@ -840,7 +841,7 @@ template <typename IntType>
 void rational<IntType>::normalize()
 {
     // Avoid repeated construction
-    IntType zero(0);
+    IntType const zero(0);
 
     if (den == zero)
        BOOST_THROW_EXCEPTION(bad_rational());
@@ -856,9 +857,8 @@ void rational<IntType>::normalize()
     num /= g;
     den /= g;
 
-    if (den < -(std::numeric_limits<IntType>::max)()) {
+    if (den < -(std::numeric_limits<IntType>::max)())
         BOOST_THROW_EXCEPTION(bad_rational("bad rational: non-zero singular denominator"));
-    }
 
     // Ensure that the denominator is positive
     if (den < zero) {
@@ -867,6 +867,23 @@ void rational<IntType>::normalize()
     }
 
     BOOST_ASSERT( this->test_invariant() );
+}
+
+template <typename IntType>
+inline rational<IntType> pow(rational<IntType> base, IntType exponent)
+{
+    if (!base)
+        return base;
+    bool const positive = exponent >= 0;
+    rational<IntType> result((exponent % 2 != 0) ? base : rational<IntType>(1));
+
+    while ((exponent /= 2) != 0) {
+        base *= base;
+        if ((exponent % 2) != 0)
+            result *= base;
+    }
+
+    return positive ? result : (static_cast<IntType>(1) / result);
 }
 
 #ifndef BOOST_NO_IOSTREAM
