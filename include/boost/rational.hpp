@@ -87,6 +87,7 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/is_class.hpp>
+#include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_same.hpp>
 
 // Control whether depreciated GCD and LCM functions are included (default: yes)
@@ -869,8 +870,9 @@ void rational<IntType>::normalize()
     BOOST_ASSERT( this->test_invariant() );
 }
 
-template <typename IntType>
-inline rational<IntType> pow(rational<IntType> base, IntType exponent)
+template <class IntType, class ExpType>
+inline typename boost::enable_if_c<boost::is_integral<ExpType>::value, rational<IntType> >::type
+pow(rational<IntType> base, ExpType exponent)
 {
     if (!base)
         return base;
