@@ -48,9 +48,11 @@
 
 #include <boost/rational.hpp>
 
+#include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <climits>
+#include <cmath>
 #include <iomanip>
 #include <ios>
 #include <iostream>
@@ -1607,38 +1609,53 @@ BOOST_AUTO_TEST_CASE( ticket_9067_test )
 }
 
 // Power tests
-BOOST_AUTO_TEST_CASE_TEMPLATE( rational_pow_test, T, all_signed_test_types )
+BOOST_AUTO_TEST_CASE( rational_pow_test )
 {
-    typedef boost::rational<T> rational_type;
+    typedef boost::rational<int> rational_type;
 
-    BOOST_CHECK_EQUAL( pow(rational_type(0), T( 0)), rational_type(0) );
+    using boost::pow;
+    BOOST_CHECK_EQUAL( pow(rational_type(0),  0), rational_type(0) );
 
-    BOOST_CHECK_EQUAL( pow(rational_type(2), T(-4)), rational_type(1, 16) );
-    BOOST_CHECK_EQUAL( pow(rational_type(2), T(-3)), rational_type(1, 8) );
-    BOOST_CHECK_EQUAL( pow(rational_type(2), T(-2)), rational_type(1, 4) );
-    BOOST_CHECK_EQUAL( pow(rational_type(2), T(-1)), rational_type(1, 2) );
-    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 0)), rational_type(1) );
-    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 1)), rational_type(2) );
-    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 2)), rational_type(4) );
-    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 3)), rational_type(8) );
-    BOOST_CHECK_EQUAL( pow(rational_type(2), T( 4)), rational_type(16) );
+    // ensure all integral types are accepted
+    BOOST_CHECK_EQUAL( pow(rational_type(2), static_cast<signed char>(-5) ), rational_type(1, 32) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), static_cast<signed short>(-4) ), rational_type(1, 16) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), -3   ), rational_type(1, 8) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2), -2l  ), rational_type(1, 4) );
+#ifndef BOOST_NO_LONG_LONG
+    BOOST_CHECK_EQUAL( pow(rational_type(2), -1ll ), rational_type(1, 2) );
+#endif
+    BOOST_CHECK_EQUAL( pow(rational_type(2),  static_cast<unsigned char>(0) ), rational_type(1) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2),  static_cast<unsigned short>(1) ), rational_type(2) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2),  2u  ), rational_type(4) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2),  3ul ), rational_type(8) );
+#ifndef BOOST_NO_LONG_LONG
+    BOOST_CHECK_EQUAL( pow(rational_type(2),  4ull), rational_type(16) );
+#endif
 
-    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T(-4)), rational_type(16) );
-    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T(-3)), rational_type(-8) );
-    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T(-2)), rational_type(4) );
-    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T(-1)), rational_type(-2) );
-    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T( 0)), rational_type(1) );
-    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T( 1)), rational_type(-1, 2) );
-    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T( 2)), rational_type(1, 4) );
-    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T( 3)), rational_type(-1, 8) );
-    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), T( 4)), rational_type(1, 16) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), -4), rational_type(16) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), -3), rational_type(-8) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), -2), rational_type(4) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2), -1), rational_type(-2) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2),  0), rational_type(1) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2),  1), rational_type(-1, 2) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2),  2), rational_type(1, 4) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2),  3), rational_type(-1, 8) );
+    BOOST_CHECK_EQUAL( pow(rational_type(-1, 2),  4), rational_type(1, 16) );
 
-    BOOST_CHECK_EQUAL( pow(rational_type(1, 3), T(3)), rational_type(1, 27) );
-    BOOST_CHECK_EQUAL( pow(rational_type(2, 3), T(3)), rational_type(8, 27) );
-    BOOST_CHECK_EQUAL( pow(rational_type(1, 5), T(5)), rational_type(1, 3125) );
-    BOOST_CHECK_EQUAL( pow(rational_type(2, 5), T(5)), rational_type(32, 3125) );
-    BOOST_CHECK_EQUAL( pow(rational_type(3, 5), T(5)), rational_type(243, 3125) );
-    BOOST_CHECK_EQUAL( pow(rational_type(4, 5), T(5)), rational_type(1024, 3125) );
+    BOOST_CHECK_EQUAL( pow(rational_type(1, 3), 3), rational_type(1, 27) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2, 3), 3), rational_type(8, 27) );
+    BOOST_CHECK_EQUAL( pow(rational_type(1, 5), 5), rational_type(1, 3125) );
+    BOOST_CHECK_EQUAL( pow(rational_type(2, 5), 5), rational_type(32, 3125) );
+    BOOST_CHECK_EQUAL( pow(rational_type(3, 5), 5), rational_type(243, 3125) );
+    BOOST_CHECK_EQUAL( pow(rational_type(4, 5), 5), rational_type(1024, 3125) );
+}
+
+BOOST_AUTO_TEST_CASE( no_std_pow_collision )
+{
+    using boost::pow;
+    using std::pow;
+
+    BOOST_CHECK_CLOSE( pow(2.0f, 3.0f), 8.0f, 0.00001f );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
