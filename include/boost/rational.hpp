@@ -712,7 +712,7 @@ inline typename boost::enable_if_c <
 }
 
 template <class IntType, class Arg>
-BOOST_CXX14_CONSTEXPR
+BOOST_CONSTEXPR
 inline typename boost::enable_if_c <
    rational_detail::is_compatible_integer<Arg, IntType>::value || is_same<rational<IntType>, Arg>::value, bool>::type
    operator != (const rational<IntType>& a, const Arg& b)
@@ -720,7 +720,7 @@ inline typename boost::enable_if_c <
       return !(a == b);
 }
 template <class Arg, class IntType>
-BOOST_CXX14_CONSTEXPR
+BOOST_CONSTEXPR
 inline typename boost::enable_if_c <
    rational_detail::is_compatible_integer<Arg, IntType>::value, bool>::type
    operator != (const Arg& b, const rational<IntType>& a)
@@ -745,7 +745,7 @@ inline typename boost::enable_if_c <
       return a < b;
 }
 template <class Arg, class IntType>
-BOOST_CXX14_CONSTEXPR
+BOOST_CONSTEXPR
 inline typename boost::enable_if_c <
    rational_detail::is_compatible_integer<Arg, IntType>::value, bool>::type
    operator == (const Arg& b, const rational<IntType>& a)
