@@ -5,8 +5,9 @@
 # NOTE: CMake support for Boost.Rational is currently experimental at best
 #       and the interface is likely to change in the future
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required( VERSION 3.5 )
 project( BoostRational LANGUAGES CXX)
+option( BOOST_RATIONA_INCLUDE_TESTS "Add boost rational tests" OFF )
 
 add_library( boost_rational INTERFACE )
 add_library( Boost::rational ALIAS boost_rational )
@@ -24,4 +25,9 @@ target_link_libraries( boost_rational
         Boost::type_traits
         Boost::utility
 )
+
+if( BOOST_RATIONA_INCLUDE_TESTS )
+    enable_testing()
+    add_subdirectory( test )
+endif()
 
