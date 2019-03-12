@@ -7,7 +7,7 @@
 
 cmake_minimum_required( VERSION 3.5 )
 project( BoostRational LANGUAGES CXX)
-option( BOOST_RATIONA_INCLUDE_TESTS "Add boost rational tests" OFF )
+option( BOOST_RATIONAL_INCLUDE_TESTS "Add boost rational tests" OFF )
 
 add_library( boost_rational INTERFACE )
 add_library( Boost::rational ALIAS boost_rational )
