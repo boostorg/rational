@@ -21,4 +21,5 @@ test-suite rational
         [ compile-fail expected_fail_09.cpp ]
         [ compile-fail expected_fail_10.cpp ]
         [ compile-fail expected_fail_11.cpp ]
+        [ compile expected_compile_12.cpp ]
     ;

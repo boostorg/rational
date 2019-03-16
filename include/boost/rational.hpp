@@ -87,6 +87,7 @@
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/is_class.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/is_array.hpp>
 
 // Control whether depreciated GCD and LCM functions are included (default: yes)
 #ifndef BOOST_CONTROL_RATIONAL_HAS_GCD
@@ -152,7 +153,7 @@ public:
 
     BOOST_CONSTEXPR
     rational() : num(0), den(1) {}
-    template <class T>
+    template <class T, typename = typename enable_if_c<!is_array<T>::value>::type>
     BOOST_CONSTEXPR rational(const T& n, typename enable_if_c<
        rational_detail::is_compatible_integer<T, IntType>::value
     >::type const* = 0) : num(n), den(1) {}
@@ -200,7 +201,7 @@ public:
     // conversion from T to IntType, they will throw a bad_rational
     // if the conversion results in loss of precision or undefined behaviour.
     //
-    template <class T>
+    template <class T, typename = typename enable_if_c<!is_array<T>::value>::type>
     BOOST_CXX14_CONSTEXPR rational(const T& n, typename enable_if_c<
        std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer
        && !rational_detail::is_compatible_integer<T, IntType>::value
