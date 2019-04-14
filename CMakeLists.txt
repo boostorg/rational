@@ -26,7 +26,7 @@ target_link_libraries( boost_rational
         Boost::utility
 )
 
-if( BOOST_RATIONA_INCLUDE_TESTS )
+if( BOOST_RATIONAL_INCLUDE_TESTS )
     enable_testing()
     add_subdirectory( test )
 endif()
