@@ -40,6 +40,7 @@
 #include <boost/config.hpp>
 #include <boost/limits.hpp>
 #include <boost/mpl/list.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 #include <boost/operators.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/integer/common_factor_rt.hpp>
@@ -1603,6 +1604,18 @@ BOOST_AUTO_TEST_CASE( ticket_9067_test )
     BOOST_CHECK_EQUAL( a.numerator(), -3 );
     BOOST_CHECK_EQUAL( a.denominator(), 4 );
 #endif
+}
+
+// arbitrary precision rational with negative denominator throws exception
+BOOST_AUTO_TEST_CASE( issue_27_test )
+{
+    using namespace boost::multiprecision;
+
+    // Verify that the check to ensure that the denominator is positive works
+    // with an arbitrary precision rational.
+    cpp_rational rational(1, -2);
+    BOOST_CHECK_EQUAL(numerator(rational), -1);
+    BOOST_CHECK_EQUAL(denominator(rational), 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
