@@ -6,6 +6,8 @@ import testing ;
 import-search /boost/config/checks ;
 import config : requires ;
 
+project : requirements <library>/boost/rational//boost_rational ;
+
 test-suite rational
     :   [ run rational_example.cpp ]
         [ run rational_test.cpp
