@@ -1478,6 +1478,39 @@ BOOST_AUTO_TEST_SUITE_END()
 // The bugs, patches, and requests checking suite
 BOOST_AUTO_TEST_SUITE( bug_patch_request_suite )
 
+BOOST_AUTO_TEST_CASE( operator_plus_overflow_test )
+{
+    MyOverflowingUnsigned const base = 10;
+    MyOverflowingUnsigned num1 = 1;
+    while ( num1 < UINT_MAX / base ) num1 *= base;
+    if ( UINT_MAX / num1 < 4 ) // e.g. 64-bit unsigned
+    {
+        num1 /= base;
+        num1 *= 7;
+    }
+    else // e.g. 32-bit unsigned
+    {
+        num1 *= 2;
+    }
+    MyOverflowingUnsigned const num2 = num1 * 2;
+
+    // Other unsigned types are not covered by this test
+    // (but it should still pass on all platforms).
+    if ( sizeof( MyOverflowingUnsigned ) == 4
+      || sizeof( MyOverflowingUnsigned ) == 8 )
+    {
+        BOOST_TEST( UINT_MAX - num1 < num2 );
+    }
+
+    MyOverflowingUnsigned const denom = 3;
+    boost::rational<MyOverflowingUnsigned> const r1( num1, denom ),
+                                                 r2( num2, denom );
+    // This test succeeds when MyOverflowingUnsigned is replaced with a built-in
+    // unsigned type due to unsigned integer overflow wraparound. But it guards
+    // against the undefined behavior of signed integer overflow.
+    BOOST_TEST( r1 + r2 == num1 );
+}
+
 // "rational operator< can overflow"
 BOOST_AUTO_TEST_CASE( bug_798357_test )
 {
