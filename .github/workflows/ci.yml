@@ -1,7 +1,7 @@
 # Copyright 2020-2021 Peter Dimov
 # Copyright 2021 Andrey Semashev
 # Copyright 2021 Alexander Grund
-# Copyright 2022 James E. King III
+# Copyright 2022-2024 James E. King III
 #
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://boost.org/LICENSE_1_0.txt)
@@ -18,6 +18,10 @@ on:
       - feature/**
       - fix/**
       - pr/**
+    paths-ignore:
+      - LICENSE
+      - meta/**
+      - README.md
 
 concurrency:
   group: ${{format('{0}:{1}', github.repository, github.ref)}}
@@ -29,8 +33,7 @@ env:
   B2_CI_VERSION: 1
   B2_VARIANT: debug,release
   B2_LINK: shared,static
-  LCOV_BRANCH_COVERAGE: 1
-  CODECOV_NAME: Github Actions
+  LCOV_BRANCH_COVERAGE: 0
 
 jobs:
   posix:
@@ -42,54 +45,37 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Linux, gcc
-          - { compiler: gcc-4.8,   cxxstd: '11',          os: ubuntu-latest, container: 'ubuntu:16.04' }
-          - { compiler: gcc-4.9,   cxxstd: '11',          os: ubuntu-latest, container: 'ubuntu:16.04' }
-          - { compiler: gcc-5,     cxxstd: '11,14,1z',    os: ubuntu-latest, container: 'ubuntu:18.04' }
-          - { compiler: gcc-6,     cxxstd: '11,14,17',    os: ubuntu-latest, container: 'ubuntu:18.04' }
-          - { compiler: gcc-7,     cxxstd: '11,14,17',    os: ubuntu-20.04 }
-          - { compiler: gcc-8,     cxxstd: '11,14,17,2a', os: ubuntu-20.04 }
-          - { compiler: gcc-9,     cxxstd: '11,14,17,2a', os: ubuntu-20.04 }
-          - { compiler: gcc-10,    cxxstd: '11,14,17,20', os: ubuntu-22.04 }
-          - { compiler: gcc-11,    cxxstd: '11,14,17,20', os: ubuntu-22.04 }
-          - { compiler: gcc-12,    cxxstd: '11,14,17,20', os: ubuntu-22.04 }
-          - { compiler: gcc-13,    cxxstd: '11,14,17,20,2b', os: ubuntu-24.04 }
+          # linux, gcc
+          - { compiler: gcc-7,     cxxstd: '11,14,17',       os: ubuntu-20.04 }
+          - { compiler: gcc-8,     cxxstd: '11,14,17,2a',    os: ubuntu-20.04 }
+          - { compiler: gcc-9,     cxxstd: '11,14,17,2a',    os: ubuntu-20.04 }
+          - { compiler: gcc-10,    cxxstd: '11,14,17,20',    os: ubuntu-20.04 }
+          - { compiler: gcc-11,    cxxstd: '11,14,17,20',    os: ubuntu-20.04 }
+          - { compiler: gcc-12,    cxxstd: '11,14,17,20',    os: ubuntu-22.04 }
+          - { compiler: gcc-13,    cxxstd: '11,14,17,20,2b', os: ubuntu-22.04 }
           - { compiler: gcc-14,    cxxstd: '11,14,17,20,2b', os: ubuntu-24.04 }
           - { name: GCC w/ sanitizers, sanitize: yes,
-              compiler: gcc-13,    cxxstd: '11,14,17,20', os: ubuntu-24.04 }
+              compiler: gcc-13,    cxxstd: '11,14,17,20',    os: ubuntu-22.04 }
           - { name: Collect coverage, coverage: yes,
-              compiler: gcc-13,    cxxstd: '11,14,17,20,2b', os: ubuntu-24.04, install: 'g++-13-multilib', address-model: '32,64' }
+              compiler: gcc-12,    cxxstd: '11',             os: ubuntu-22.04, install: 'g++-12-multilib', address-model: '32,64' }
 
-          # Linux, clang
-          - { compiler: clang-3.5, cxxstd: '11',          os: ubuntu-latest, container: 'ubuntu:16.04' }
-          - { compiler: clang-3.6, cxxstd: '11,14',       os: ubuntu-latest, container: 'ubuntu:16.04' }
-          - { compiler: clang-3.7, cxxstd: '11,14',       os: ubuntu-latest, container: 'ubuntu:16.04' }
-          - { compiler: clang-3.8, cxxstd: '11,14',       os: ubuntu-latest, container: 'ubuntu:16.04' }
-          - { compiler: clang-3.9, cxxstd: '11,14',       os: ubuntu-latest, container: 'ubuntu:18.04' }
-          - { compiler: clang-4.0, cxxstd: '11,14',       os: ubuntu-latest, container: 'ubuntu:18.04' }
-          - { compiler: clang-5.0, cxxstd: '11,14,1z',    os: ubuntu-latest, container: 'ubuntu:18.04' }
-          - { compiler: clang-6.0, cxxstd: '11,14,17',    os: ubuntu-20.04 }
-          - { compiler: clang-7,   cxxstd: '11,14,17',    os: ubuntu-20.04 }
-          # Note: clang-8 does not fully support C++20, so it is not compatible with some libstdc++ versions in this mode
-          - { compiler: clang-8,   cxxstd: '11,14,17,2a', os: ubuntu-20.04 , install: 'clang-8 g++-7', gcc_toolchain: 7 }
-          - { compiler: clang-9,   cxxstd: '11,14,17,2a', os: ubuntu-20.04 }
-          - { compiler: clang-10,  cxxstd: '11,14,17,20', os: ubuntu-20.04 }
-          - { compiler: clang-11,  cxxstd: '11,14,17,20', os: ubuntu-20.04 }
-          - { compiler: clang-12,  cxxstd: '11,14,17,20', os: ubuntu-20.04 }
+          # linux, clang
+          - { compiler: clang-9,   cxxstd: '11,14,17,2a',    os: ubuntu-20.04 }
+          - { compiler: clang-10,  cxxstd: '11,14,17,20',    os: ubuntu-20.04 }
+          - { compiler: clang-11,  cxxstd: '11,14,17,20',    os: ubuntu-20.04 }
+          - { compiler: clang-12,  cxxstd: '11,14,17,20',    os: ubuntu-20.04 }
           # Clang isn't compatible with libstdc++-13, so use the slightly older one
-          - { compiler: clang-13,  cxxstd: '11,14,17,20', os: ubuntu-22.04, install: 'clang-13 g++-12', gcc_toolchain: 12 }
-          - { compiler: clang-14,  cxxstd: '11,14,17,20', os: ubuntu-22.04, install: 'clang-14 g++-12', gcc_toolchain: 12 }
-          - { compiler: clang-15,  cxxstd: '11,14,17,20', os: ubuntu-22.04, install: 'clang-15 g++-12', gcc_toolchain: 12 }
+          - { compiler: clang-13,  cxxstd: '11,14,17,20',    os: ubuntu-22.04,  install: 'clang-13 g++-12', gcc_toolchain: 12 }
+          - { compiler: clang-14,  cxxstd: '11,14,17,20',    os: ubuntu-22.04,  install: 'clang-14 g++-12', gcc_toolchain: 12 }
+          - { compiler: clang-15,  cxxstd: '11,14,17,20',    os: ubuntu-22.04,  install: 'clang-15 g++-12', gcc_toolchain: 12 }
           - { compiler: clang-16,  cxxstd: '11,14,17,20,2b', os: ubuntu-24.04 }
           # https://github.com/llvm/llvm-project/issues/59827: disabled 2b/23 for clang-17 with libstdc++13 in 24.04
-          - { compiler: clang-17,  cxxstd: '11,14,17,20', os: ubuntu-24.04 }
-          - { compiler: clang-18,  cxxstd: '11,14,17,20,23,2c', os: ubuntu-24.04 }
+          - { compiler: clang-17,  cxxstd: '11,14,17,20',    os: ubuntu-24.04 }
+          - { compiler: clang-18,  cxxstd: '11,17,20,23,2c', os: ubuntu-24.04 }
 
-          # libc++
-          - { compiler: clang-6.0, cxxstd: '11,14',       os: ubuntu-latest, container: 'ubuntu:18.04', stdlib: libc++, install: 'clang-6.0 libc++-dev libc++abi-dev' }
-          - { compiler: clang-7,   cxxstd: '11,14,17',    os: ubuntu-20.04, stdlib: libc++, install: 'clang-7 libc++-7-dev libc++abi-7-dev' }
+          # linux, libc++
           - { name: Clang w/ sanitizers, sanitize: yes,
-              compiler: clang-12,  cxxstd: '11,14,17,20', os: ubuntu-20.04, stdlib: libc++, install: 'clang-12 libc++-12-dev libc++abi-12-dev' }
+              compiler: clang-12,  cxxstd: '11,14,17,20',    os: ubuntu-20.04, stdlib: 'libc++', install: 'clang-12 libc++-12-dev libc++abi-12-dev' }
 
           - { name: MacOS w/ clang and sanitizers,
               compiler: clang,     cxxstd: '11,14,17,20,2b', os: macos-13, sanitize: yes }
@@ -100,20 +86,14 @@ jobs:
           # requires two github secrets in repo to activate; see ci/github/coverity.sh
           # does not run on pull requests, only on pushes into develop and master
           - { name: Coverity, coverity: yes,
-              compiler: clang-12,  cxxstd: '11,20',          os: ubuntu-20.04, ccache: no }
+              compiler: clang-12,  cxxstd: '17',             os: ubuntu-20.04, ccache: no }
 
           # multiarch (bigendian testing) - does not support coverage yet
           - { name: Big-endian, multiarch: yes,
               compiler: clang,     cxxstd: '17',             os: ubuntu-22.04, ccache: no, distro: fedora, edition: 34, arch: s390x }
 
-
     timeout-minutes: 120
     runs-on: ${{matrix.os}}
-    container:
-      image: ${{matrix.container}}
-      volumes:
-        - /node20217:/node20217:rw,rshared
-        - ${{ startsWith(matrix.container, 'ubuntu:1') && '/node20217:/__e/node20:ro,rshared' || ' ' }}
     env: {B2_USE_CCACHE: 1}
 
     steps:
@@ -131,7 +111,7 @@ jobs:
                 for i in {1..${NET_RETRY_COUNT:-3}}; do sudo -E add-apt-repository -y ppa:git-core/ppa && break || sleep 10; done
                 apt-get -o Acquire::Retries=$NET_RETRY_COUNT update
                 osver=$(lsb_release -sr | cut -f1 -d.)
-                pkgs="g++ git"
+                pkgs="g++ git xz-utils"
                 # Ubuntu 22+ has only Python 3 in the repos
                 if [ -n "$osver" ] && [ "$osver" -ge "22" ]; then
                   pkgs+=" python-is-python3 libpython3-dev"
@@ -182,8 +162,8 @@ jobs:
       - name: Install packages
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-            SOURCE_KEYS=(${{join(matrix.source_keys, ' ')}})
-            SOURCES=(${{join(matrix.sources, ' ')}})
+            SOURCE_KEYS=("${{join(matrix.source_keys, '" "')}}")
+            SOURCES=("${{join(matrix.sources, '" "')}}")
             # Add this by default
             SOURCE_KEYS+=('http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x1E9377A2BA9EF27F')
             SOURCES+=(ppa:ubuntu-toolchain-r/test)
@@ -249,21 +229,11 @@ jobs:
         if: '!matrix.coverity'
         run: ci/build.sh
 
-      - name: Collect coverage
+      - name: Upload coverage
         if: matrix.coverage
         run: ci/codecov.sh "upload"
         env:
-          BOOST_CI_CODECOV_IO_UPLOAD: skip
-
-      - name: Upload coverage
-        if: matrix.coverage
-        uses: codecov/codecov-action@v4
-        with:
-          disable_search: true
-          file: coverage.info
-          name: Github Actions
-          token: ${{secrets.CODECOV_TOKEN}}
-          verbose: true
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run coverity
         if: matrix.coverity && github.event_name == 'push' && (github.ref_name == 'develop' || github.ref_name == 'master')
@@ -280,13 +250,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { toolset: msvc-14.0, cxxstd: '14,latest',       addrmd: '32,64', os: windows-2019 }
-          - { toolset: msvc-14.2, cxxstd: '14,17,20',        addrmd: '32,64', os: windows-2019 }
-          - { toolset: msvc-14.3, cxxstd: '14,17,20,latest', addrmd: '32,64', os: windows-2022 }
+          - { toolset: msvc-14.0, cxxstd: '14,latest',      addrmd: '32,64', os: windows-2019 }
+          - { toolset: msvc-14.2, cxxstd: '14,17,20',       addrmd: '32,64', os: windows-2019 }
+          - { toolset: msvc-14.3, cxxstd: '14,17,20,latest',addrmd: '32,64', os: windows-2022 }
           - { name: Collect coverage, coverage: yes,
-              toolset: msvc-14.3, cxxstd: 'latest',          addrmd:    '64', os: windows-2022 }
-          - { toolset: clang-win, cxxstd: '14,17,latest',    addrmd: '32,64', os: windows-2022 }
-          - { toolset: gcc,       cxxstd: '11,14,17,2a',     addrmd:    '64', os: windows-2019 }
+              toolset: msvc-14.3, cxxstd: 'latest',         addrmd: '64',    os: windows-2022 }
+          - { toolset: clang-win, cxxstd: '14,17,latest',   addrmd: '32,64', os: windows-2022 }
+          - { toolset: gcc,       cxxstd: '11,14,17,2a',    addrmd: '64',    os: windows-2019 }
 
     runs-on: ${{matrix.os}}
 
@@ -327,11 +297,12 @@ jobs:
 
       - name: Upload coverage
         if: matrix.coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           disable_search: true
-          file: __out/cobertura.xml
-          name: Github Actions
+          fail_ci_if_error: true
+          files: __out/cobertura.xml
+          name: github-actions
           token: ${{secrets.CODECOV_TOKEN}}
           verbose: true
 
@@ -458,3 +429,4 @@ jobs:
             cmake -G "${{matrix.generator}}" -DBOOST_CI_INSTALL_TEST=ON -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DBUILD_SHARED_LIBS=${{matrix.build_shared}} -DCMAKE_PREFIX_PATH=~/.local ..
             cmake --build . --config ${{matrix.build_type}} -j$B2_JOBS
             ctest --output-on-failure --build-config ${{matrix.build_type}}
+
