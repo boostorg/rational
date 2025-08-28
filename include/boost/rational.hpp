@@ -325,7 +325,7 @@ public:
        num /= gcd;
        den *= i / gcd;
 
-       if constexpr (std::numeric_limits<IntType>::is_signed) {
+       if BOOST_CONSTEXPR (std::numeric_limits<IntType>::is_signed) {
           if(den < zero) {
              num = -num;
              den = -den;
@@ -607,7 +607,7 @@ BOOST_CXX14_CONSTEXPR rational<IntType>& rational<IntType>::operator/= (const ra
     num = (num/gcd1) * (r_den/gcd2);
     den = (den/gcd2) * (r_num/gcd1);
 
-    if constexpr (std::numeric_limits<IntType>::is_signed) {
+    if BOOST_CONSTEXPR (std::numeric_limits<IntType>::is_signed) {
         if (den < zero) {
             num = -num;
             den = -den;
@@ -907,7 +907,7 @@ BOOST_CXX14_CONSTEXPR void rational<IntType>::normalize()
     num /= g;
     den /= g;
 
-    if constexpr (std::numeric_limits<IntType>::is_signed && std::numeric_limits<IntType>::is_bounded) {
+    if BOOST_CONSTEXPR (std::numeric_limits<IntType>::is_signed && std::numeric_limits<IntType>::is_bounded) {
         if (den < -(std::numeric_limits<IntType>::max)()) {
             BOOST_THROW_EXCEPTION(bad_rational("bad rational: non-zero singular denominator"));
         }
