@@ -516,6 +516,10 @@ inline rational<IntType> operator- (const rational<IntType>& r)
 template <typename IntType>
 BOOST_CXX14_CONSTEXPR rational<IntType>& rational<IntType>::operator+= (const rational<IntType>& r)
 {
+    // Prevent division by zero below if *this == 0, r == 0 and num_g == 0.
+    if (r.num == IntType(0))
+        return *this; // r == 0 => *this need not be changed.
+
     // This calculation avoids overflow, and minimises the number of expensive
     // calculations. Thanks to Nickolay Mladenov for this algorithm.
     //
@@ -534,15 +538,22 @@ BOOST_CXX14_CONSTEXPR rational<IntType>& rational<IntType>::operator+= (const ra
     // Which proves that instead of normalizing the result, it is better to
     // divide num and den by gcd((a*d1 + c*b1), g)
 
+    // First dividing, then multiplying by num_g avoids overflow even further,
+    // at the cost of a branch, an extra GCD calculation, two integer divisions
+    // and one integer multiplication.
+
     // Protect against self-modification
     IntType r_num = r.num;
     IntType r_den = r.den;
 
+    const IntType num_g = integer::gcd(num, r_num);
     IntType g = integer::gcd(den, r_den);
     den /= g;  // = b1 from the calculations above
-    num = num * (r_den / g) + r_num * den;
+    num = (num / num_g) * (r_den / g) + (r_num / num_g) * den;
+
     g = integer::gcd(num, g);
     num /= g;
+    num *= num_g;
     den *= r_den/g;
 
     return *this;
