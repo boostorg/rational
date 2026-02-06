@@ -21,6 +21,7 @@
 //    Nickolay Mladenov, for the implementation of operator+=
 
 //  Revision History
+//  10 Aug 25  Don't use `-` on unsigned types (Yury Kudryashov)
 //  12 Nov 20  Fix operators to work with C++20 rules (Glen Joseph Fernandes)
 //  02 Sep 13  Remove unneeded forward declarations; tweak private helper
 //             function (Daryle Walker)
@@ -324,9 +325,11 @@ public:
        num /= gcd;
        den *= i / gcd;
 
-       if(den < zero) {
-          num = -num;
-          den = -den;
+       if BOOST_CONSTEXPR (std::numeric_limits<IntType>::is_signed) {
+          if(den < zero) {
+             num = -num;
+             den = -den;
+          }
        }
 
        return *this;
@@ -604,9 +607,11 @@ BOOST_CXX14_CONSTEXPR rational<IntType>& rational<IntType>::operator/= (const ra
     num = (num/gcd1) * (r_den/gcd2);
     den = (den/gcd2) * (r_num/gcd1);
 
-    if (den < zero) {
-        num = -num;
-        den = -den;
+    if BOOST_CONSTEXPR (std::numeric_limits<IntType>::is_signed) {
+        if (den < zero) {
+            num = -num;
+            den = -den;
+        }
     }
     return *this;
 }
@@ -902,14 +907,16 @@ BOOST_CXX14_CONSTEXPR void rational<IntType>::normalize()
     num /= g;
     den /= g;
 
-    if (std::numeric_limits<IntType>::is_bounded && den < -(std::numeric_limits<IntType>::max)()) {
-        BOOST_THROW_EXCEPTION(bad_rational("bad rational: non-zero singular denominator"));
-    }
+    if BOOST_CONSTEXPR (std::numeric_limits<IntType>::is_signed && std::numeric_limits<IntType>::is_bounded) {
+        if (den < -(std::numeric_limits<IntType>::max)()) {
+            BOOST_THROW_EXCEPTION(bad_rational("bad rational: non-zero singular denominator"));
+        }
 
-    // Ensure that the denominator is positive
-    if (den < zero) {
-        num = -num;
-        den = -den;
+        // Ensure that the denominator is positive
+        if (den < zero) {
+            num = -num;
+            den = -den;
+        }
     }
 
     BOOST_ASSERT( this->test_invariant() );
