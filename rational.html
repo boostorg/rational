@@ -121,7 +121,8 @@ template &lt;typename I&gt; rational&lt;I&gt; abs (const rational&lt;I&gt;&amp; 
 
 // Input and output
 template &lt;typename I&gt; std::istream&amp; operator&gt;&gt; (std::istream&amp; is, rational&lt;I&gt;&amp; r);
-template &lt;typename I&gt; std::ostream&amp; operator&lt;&lt; (std::ostream&amp; os, const rational&lt;I&gt;&amp; r);
+template &lt;typename I, typename Ch, typename Tr&gt;
+std::basic_ostream&lt;Ch, Tr&gt;&amp; operator&lt;&lt; (std::basic_ostream&lt;Ch, Tr&gt;&amp; os, const rational&lt;I&gt;&amp; r);
 
 // Type conversion
 template &lt;typename T, typename I&gt; T rational_cast (const rational&lt;I&gt;&amp; r); // constexpr since C++11

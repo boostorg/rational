@@ -965,11 +965,12 @@ std::istream& operator>> (std::istream& is, rational<IntType>& r)
 }
 
 // Add manipulators for output format?
-template <typename IntType>
-std::ostream& operator<< (std::ostream& os, const rational<IntType>& r)
+template <typename IntType, typename Ch, typename Tr>
+std::basic_ostream<Ch, Tr>& operator<< (std::basic_ostream<Ch, Tr>& os,
+                                     const rational<IntType>& r)
 {
     // The slash directly precedes the denominator, which has no prefixes.
-    std::ostringstream  ss;
+    std::basic_ostringstream<Ch, Tr>  ss;
 
     ss.copyfmt( os );
     ss.tie( NULL );
@@ -978,12 +979,12 @@ std::ostream& operator<< (std::ostream& os, const rational<IntType>& r)
     ss << std::noshowpos << std::noshowbase << '/' << r.denominator();
 
     // The numerator holds the showpos, internal, and showbase flags.
-    std::string const   tail = ss.str();
+    std::basic_string<Ch, Tr> const   tail = ss.str();
     std::streamsize const  w =
         os.width() - static_cast<std::streamsize>( tail.size() );
 
     ss.clear();
-    ss.str( "" );
+    ss.str( std::basic_string<Ch, Tr>() );
     ss.flags( os.flags() );
     ss << std::setw( w < 0 || (os.flags() & std::ios::adjustfield) !=
                      std::ios::internal ? 0 : w ) << r.numerator();

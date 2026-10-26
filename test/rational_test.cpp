@@ -1176,6 +1176,43 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( rational_output_test, T, all_signed_test_types )
     BOOST_CHECK_EQUAL( oss.str(), "0x22/3db" );  // not "0x22/0x3db"
 }
 
+#if !defined(BOOST_NO_STD_WSTRING) && !defined(BOOST_NO_STD_WSTREAMBUF)
+BOOST_AUTO_TEST_CASE_TEMPLATE( rational_wide_output_test, T,
+ builtin_signed_test_types )
+{
+    using namespace std;
+    typedef boost::rational<T>  rational_type;
+
+    wostringstream  oss;
+
+    oss << rational_type( 44, 14 );
+    BOOST_CHECK( oss.str() == L"22/7" );
+
+    // Rational output must not fall back to Boolean conversion.
+    oss.clear(); oss.str( L"" );
+    oss << boolalpha << rational_type( 0 ) << L' ' << rational_type( 1, 3 );
+    BOOST_CHECK( oss.str() == L"0/1 1/3" );
+
+    oss.clear(); oss.str( L"" );
+    oss << setw( 5 ) << setfill(L'*') << rational_type( 1, 2 ) << L'r';
+    BOOST_CHECK( oss.str() == L"**1/2r" );
+    BOOST_CHECK_EQUAL( oss.width(), 0 );
+    BOOST_CHECK_EQUAL( oss.fill(), L'*' );
+
+    oss.clear(); oss.str( L"" );
+    oss << showpos << rational_type( 2, 3 ) << noshowpos;
+    BOOST_CHECK( oss.str() == L"+2/3" );
+
+    oss.clear(); oss.str( L"" );
+    oss << setw( 8 ) << internal << rational_type( 36, -15 ) << right << L'r';
+    BOOST_CHECK( oss.str() == L"-***12/5r" );
+
+    oss.clear(); oss.str( L"" );
+    oss << showbase << hex << rational_type( 34, 987 ) << noshowbase << dec;
+    BOOST_CHECK( oss.str() == L"0x22/3db" );
+}
+#endif
+
 // Input test, failing
 BOOST_AUTO_TEST_CASE_TEMPLATE( rational_input_failing_test, T,
  all_signed_test_types )
